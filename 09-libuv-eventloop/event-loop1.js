@@ -1,7 +1,6 @@
 const fs = require("fs");
 
 const a = 100;
-
 setImmediate(() => console.log("setImmediate callback"));
 
 fs.readFile("./file.txt", "utf-8", () => {
@@ -9,11 +8,9 @@ fs.readFile("./file.txt", "utf-8", () => {
 });
 
 setTimeout(() => console.log("Timer expired"), 0);
-
 function print() {
   console.log("A: ", a);
 }
-
 print();
 console.log("Last line of the file");
 

@@ -1,17 +1,23 @@
 const fs = require("fs");
-
 const a = 100;
+
 setImmediate(() => console.log("setImmediate"));
-Promise.resolve().then(() => console.log("Promise"));
+
+Promise.resolve("Promise").then(console.log);
+
 fs.readFile("./file.txt", "utf-8", () => {
   console.log("File reading cb");
 });
+
 setTimeout(() => console.log("Timer expired"), 0);
+
 process.nextTick(() => console.log("process.nextTick"));
+
 function print() {
   console.log("A:", a);
 }
 print();
+
 console.log("Last line of the file");
 
 /*
