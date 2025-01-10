@@ -1,23 +1,19 @@
 const express = require("express");
+const connectMongoDB = require("./config/database");
 
 const app = express();
-const PORT = 3000;
+const PORT = 7777;
 
-app.get("/getData", (req, res) => {
-  try {
-    // Logic of db call and get data
-    throw new Error("Error occurred");
-  } catch (err) {
-    res.status(500).send("Some error occurred");
-  }
-});
+// Connection to database
+connectMongoDB()
+  .then(() => {
+    console.log("MongoDB is connected successfully");
 
-app.use("/", (err, req, res, next) => {
-  if (err) {
-    res.status(500).send("Something went wrong");
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server started on PORT ${PORT}`);
-});
+    // Connection to server
+    app.listen(PORT, () => {
+      console.log(`Server started on PORT ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error(err.message);
+  });
