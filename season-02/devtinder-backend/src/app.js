@@ -46,11 +46,59 @@ app.get("/user", async (req, res) => {
 
 // Feed api - get all users
 app.get("/feed", async (req, res) => {
-  // Find all users
-  const users = await UserModel.find({});
+  try {
+    // Find all users
+    const users = await UserModel.find({});
+
+    // Return the response
+    res.status(200).send(users);
+  } catch (err) {
+    res.status(500).send("Internal Server Error occurred");
+  }
+});
+
+// Delete a user
+app.delete("/user", async (req, res) => {
+  try {
+    // Get the user id from request body
+    const { userid } = req.body;
+
+    // Check if the user exists in the db or not
+    const userExists = await UserModel.findById(userid);
+    if (!userExists) {
+      res.status(404).send("User does not exists");
+    }
+
+    // Delete the user from the db
+    const deleteduser = await UserModel.findByIdAndDelete(userid);
+    console.log(deleteduser);
+
+    // Return the response
+    res.status(200).send("User deleted successfully");
+  } catch (err) {
+    res.status(500).send("Internal Server Error occurred");
+  }
+});
+
+// Update a user
+app.patch("/user", async (req, res) => {
+  // Get the user id from request body
+  const { userid } = req.body;
+
+  // Check if the user exists in the db or not
+  const userExists = await UserModel.findById(userid);
+  if (!userExists) {
+    res.status(404).send("User does not exists");
+  }
+
+  //  Update the user
+  const updateduser = await UserModel.findByIdAndUpdate(userid, req.body, {
+    returnDocument: "after",
+  });
+  console.log(updateduser);
 
   // Return the response
-  res.status(200).send(users);
+  res.status(200).send("User updated successfully");
 });
 
 // Connection to database
