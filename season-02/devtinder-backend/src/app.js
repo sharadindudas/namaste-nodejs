@@ -1,6 +1,8 @@
 const express = require("express");
 const connectMongoDB = require("./config/database");
 const UserModel = require("./models/user");
+const { validateSignup, validateLogin } = require("./utils/validation");
+const bcrypt = require("bcrypt");
 
 const app = express();
 const PORT = process.env.PORT;
@@ -13,20 +15,59 @@ app.post("/signup", async (req, res) => {
     // Get data from request body
     const { firstName, lastName, email, password } = req.body;
 
+    // Validation of data
+    validateSignup(req.body, res);
+
     // Check if the user already exists in the db or not
     const userExists = await UserModel.findOne({ email });
     if (userExists) {
       return res.status(409).send("User already exists, Please Login");
     }
 
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     // Create a new instance of the user
-    const newuser = new UserModel({ firstName, lastName, email, password });
+    const newuser = new UserModel({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+    });
 
     // Saving the user
     await newuser.save();
 
     // Return the response
     res.status(201).send("User added successfully");
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+// Login
+app.post("/login", async (req, res) => {
+  try {
+    // Get data from request body
+    const { email, password } = req.body;
+
+    // Validation of data
+    validateLogin(req.body, res);
+
+    // Check if the user exists in the db or not
+    const userExists = await UserModel.findOne({ email });
+    if (!userExists) {
+      return res.status(404).send("User does not exists", 404);
+    }
+
+    // Compare password
+    const isValidPassword = await bcrypt.compare(password, userExists.password);
+    if (!isValidPassword) {
+      return res.status(403).send("Invalid Credentials");
+    }
+
+    // Return the response
+    res.status(200), send("Login successful !!!");
   } catch (err) {
     res.status(500).send(err.message);
   }

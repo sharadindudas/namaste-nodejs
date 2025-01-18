@@ -31,10 +31,11 @@ const userSchema = new mongoose.Schema(
       required: [true, "Please provide a password"],
       minLength: [8, "Password must be at least 8 characters"],
       maxLength: [100, "Password must not exceed 100 characters"],
-      match: [
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})/gm,
-        "Password must be at least 8 characters, includes at least one uppercase letter, one lowercase letter, one number, and one special character",
-      ],
+      validate: function (value) {
+        if (!validator.isStrongPassword(value)) {
+          throw new Error("Please provide a strong password");
+        }
+      },
     },
     age: {
       type: Number,
