@@ -1,14 +1,11 @@
 const { MongoClient } = require("mongodb");
 
-const url = process.env.MONGODB_URL;
-const client = new MongoClient(url);
-
-const dbName = "HelloWorld";
+const client = new MongoClient(process.env.MONGODB_URL);
 
 async function main() {
   await client.connect();
   console.log("Connected successfully to server");
-  const db = client.db(dbName);
+  const db = client.db("HelloWorld");
   const collection = db.collection("User");
 
   const data = {

@@ -1,10 +1,10 @@
-const http = require("node:http");
+// const http = require("node:http");
+const http = require("http");
 
-const server = http.createServer(function (req, res) {
-  if (req.url === "/getSecretData") {
-    res.end("There is no secret data");
-  }
-  res.end("Hello World!");
+const server = http.createServer((req, res) => {
+  res.end("Namaste Node.js");
 });
 
-server.listen(7777);
+server.listen(7000, () => {
+  console.log("Server started at PORT 7000");
+});

@@ -22,7 +22,7 @@ app.post("/signup", async (req, res) => {
     // Return the response
     res.status(201).send("User added successfully");
   } catch (err) {
-    res.status(500).send("Internal Server Error occurred");
+    res.status(500).send(err.message);
   }
 });
 
@@ -40,7 +40,7 @@ app.get("/user", async (req, res) => {
       res.status(200).send(userExists);
     }
   } catch (err) {
-    res.status(500).send("Internal Server Error occurred");
+    res.status(500).send(err.message);
   }
 });
 
@@ -92,10 +92,10 @@ app.patch("/user", async (req, res) => {
   }
 
   //  Update the user
-  const updateduser = await UserModel.findByIdAndUpdate(userid, req.body, {
+  await UserModel.findByIdAndUpdate(userid, req.body, {
     returnDocument: "after",
+    runValidators: true,
   });
-  console.log(updateduser);
 
   // Return the response
   res.status(200).send("User updated successfully");
