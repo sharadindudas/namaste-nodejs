@@ -11,10 +11,16 @@ app.use(express.json());
 app.post("/signup", async (req, res) => {
   try {
     // Get data from request body
-    const userdata = req.body;
+    const { firstName, lastName, email, password } = req.body;
+
+    // Check if the user already exists in the db or not
+    const userExists = await UserModel.findOne({ email });
+    if (userExists) {
+      return res.status(409).send("User already exists, Please Login");
+    }
 
     // Create a new instance of the user
-    const newuser = new UserModel(userdata);
+    const newuser = new UserModel({ firstName, lastName, email, password });
 
     // Saving the user
     await newuser.save();
@@ -33,12 +39,13 @@ app.get("/user", async (req, res) => {
     const { email } = req.body;
 
     // Check if the user exists in the db or not
-    const userExists = await UserModel.findOne({ email });
+    const userExists = await UserModel.findOne({ email }).select("-password");
     if (!userExists) {
-      res.status(404).send("User does not exists");
-    } else {
-      res.status(200).send(userExists);
+      return res.status(404).send("User does not exists");
     }
+
+    // Return the response
+    res.status(200).send(userExists);
   } catch (err) {
     res.status(500).send(err.message);
   }
@@ -48,12 +55,12 @@ app.get("/user", async (req, res) => {
 app.get("/feed", async (req, res) => {
   try {
     // Find all users
-    const users = await UserModel.find({});
+    const users = await UserModel.find({}).select("-password");
 
     // Return the response
     res.status(200).send(users);
   } catch (err) {
-    res.status(500).send("Internal Server Error occurred");
+    res.status(500).send(err.message);
   }
 });
 
@@ -66,39 +73,57 @@ app.delete("/user", async (req, res) => {
     // Check if the user exists in the db or not
     const userExists = await UserModel.findById(userid);
     if (!userExists) {
-      res.status(404).send("User does not exists");
+      return res.status(404).send("User does not exists");
     }
 
     // Delete the user from the db
-    const deleteduser = await UserModel.findByIdAndDelete(userid);
-    console.log(deleteduser);
+    await UserModel.findByIdAndDelete(userid);
 
     // Return the response
     res.status(200).send("User deleted successfully");
   } catch (err) {
-    res.status(500).send("Internal Server Error occurred");
+    res.status(500).send(err.message);
   }
 });
 
 // Update a user
-app.patch("/user", async (req, res) => {
-  // Get the user id from request body
-  const { userid } = req.body;
+app.patch("/user/:id", async (req, res) => {
+  try {
+    // Get data from request body
+    const userdata = req.body;
+    // Get the user id from request params
+    const userid = req.params?.id;
 
-  // Check if the user exists in the db or not
-  const userExists = await UserModel.findById(userid);
-  if (!userExists) {
-    res.status(404).send("User does not exists");
+    // Check if the user exists in the db or not
+    const userExists = await UserModel.findById(userid);
+    if (!userExists) {
+      return res.status(404).send("User does not exists");
+    }
+
+    // Validation of data
+    const ALLOWED_FIELDS = ["age", "gender", "skills", "about", "photoUrl"];
+    const isAllowed = Object.keys(userdata).every((field) =>
+      ALLOWED_FIELDS.includes(field)
+    );
+    if (!isAllowed) {
+      return res.status(400).send("Update not allowed");
+    }
+
+    if (userdata?.skills.length > 10) {
+      return res.status(400).send("Skills cannot be more than 10");
+    }
+
+    //  Update the user
+    await UserModel.findByIdAndUpdate(userid, userdata, {
+      returnDocument: "after",
+      runValidators: true,
+    });
+
+    // Return the response
+    res.status(200).send("User updated successfully");
+  } catch (err) {
+    res.status(500).send(err.message);
   }
-
-  //  Update the user
-  await UserModel.findByIdAndUpdate(userid, req.body, {
-    returnDocument: "after",
-    runValidators: true,
-  });
-
-  // Return the response
-  res.status(200).send("User updated successfully");
 });
 
 // Connection to database
@@ -108,7 +133,7 @@ connectMongoDB()
 
     // Connection to server
     app.listen(PORT, () => {
-      console.log(`Server started on PORT ${PORT}`);
+      console.log(`Server started on http://localhost:${PORT}`);
     });
   })
   .catch((err) => {

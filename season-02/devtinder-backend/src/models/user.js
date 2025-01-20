@@ -5,18 +5,19 @@ const userSchema = new mongoose.Schema(
   {
     firstName: {
       type: String,
-      trim: true,
       required: [true, "Please provide a first name"],
+      trim: true,
     },
     lastName: {
       type: String,
-      trim: true,
       required: [true, "Please provide a last name"],
+      trim: true,
     },
     email: {
       type: String,
-      trim: true,
       required: [true, "Please provide an email"],
+      unique: [true, "Email already exists"],
+      trim: true,
       lowercase: true,
       validate: function (value) {
         if (!validator.isEmail(value)) {
