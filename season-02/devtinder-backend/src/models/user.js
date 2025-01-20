@@ -56,6 +56,11 @@ const userSchema = new mongoose.Schema(
     photoUrl: {
       type: String,
       default: "https://api.dicebear.com/9.x/pixel-art/svg",
+      validate: function (value) {
+        if (!validator.isURL(value)) {
+          throw new Error("Please provide a valid photo url");
+        }
+      },
     },
   },
   { timestamps: true }
