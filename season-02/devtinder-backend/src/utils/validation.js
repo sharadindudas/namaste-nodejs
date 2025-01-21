@@ -1,26 +1,26 @@
 const validator = require("validator");
 
 // Signup validation
-const validateSignup = (body, res) => {
+const validateSignup = (body) => {
   const { firstName, lastName, email, password } = body;
 
   if (!firstName || !lastName) {
-    return res.status(400).send("Please provide a name");
+    throw new Error("Please provide a name");
   } else if (!validator.isEmail(email)) {
-    return res.status(400).send("Please provide a valid email");
+    throw new Error("Please provide a valid email");
   } else if (!validator.isStrongPassword(password)) {
-    return res.status(400).send("Please provide a strong password");
+    throw new Error("Please provide a strong password");
   }
 };
 
 // Login validation
-const validateLogin = (body, res) => {
+const validateLogin = (body) => {
   const { email, password } = body;
 
   if (!validator.isEmail(email)) {
-    return res.status(400).send("Please provide a valid email");
+    throw new Error("Please provide a valid email");
   } else if (!validator.isStrongPassword(password)) {
-    return res.status(400).send("Please provide a strong password");
+    throw new Error("Please provide a strong password");
   }
 };
 

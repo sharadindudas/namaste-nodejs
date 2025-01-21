@@ -3,11 +3,14 @@ const connectMongoDB = require("./config/database");
 const UserModel = require("./models/user");
 const { validateSignup, validateLogin } = require("./utils/validation");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const PORT = process.env.PORT;
 
 app.use(express.json());
+app.use(cookieParser());
 
 // Signup
 app.post("/signup", async (req, res) => {
@@ -16,7 +19,7 @@ app.post("/signup", async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
 
     // Validation of data
-    validateSignup(req.body, res);
+    validateSignup(req.body);
 
     // Check if the user already exists in the db or not
     const userExists = await UserModel.findOne({ email });
@@ -41,7 +44,7 @@ app.post("/signup", async (req, res) => {
     // Return the response
     res.status(201).send("User added successfully");
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(400).send(err.message);
   }
 });
 
@@ -52,7 +55,7 @@ app.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     // Validation of data
-    validateLogin(req.body, res);
+    validateLogin(req.body);
 
     // Check if the user exists in the db or not
     const userExists = await UserModel.findOne({ email });
@@ -66,10 +69,53 @@ app.post("/login", async (req, res) => {
       return res.status(403).send("Invalid Credentials");
     }
 
-    // Return the response
-    res.status(200), send("Login successful !!!");
+    // Create a jwt token
+    const token = jwt.sign(
+      {
+        id: userExists._id,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRY }
+    );
+
+    // Send the cookie along with the response
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        maxAge: 24 * 60 * 60 * 1000,
+      })
+      .status(200)
+      .send("Login successful !!!");
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(400).send(err.message);
+  }
+});
+
+// Get user profile
+app.get("/profile", async (req, res) => {
+  try {
+    // Get token from request cookies
+    const { token } = req.cookies;
+
+    // Validation of token
+    if (!token) {
+      return res.status(401).send("Please Login to continue");
+    }
+
+    // Decode the payload
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Get the user details
+    const user = await UserModel.findById(decoded.id).select("-password");
+    if (!user) {
+      return res.status(404).send("User does not exists");
+    }
+
+    // Return the response
+    res.status(200).send(user);
+  } catch (err) {
+    res.status(400).send(err.message);
   }
 });
 
@@ -88,7 +134,7 @@ app.get("/user", async (req, res) => {
     // Return the response
     res.status(200).send(userExists);
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(400).send(err.message);
   }
 });
 
@@ -101,7 +147,7 @@ app.get("/feed", async (req, res) => {
     // Return the response
     res.status(200).send(users);
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(400).send(err.message);
   }
 });
 
@@ -123,7 +169,7 @@ app.delete("/user", async (req, res) => {
     // Return the response
     res.status(200).send("User deleted successfully");
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(400).send(err.message);
   }
 });
 
@@ -163,7 +209,7 @@ app.patch("/user/:id", async (req, res) => {
     // Return the response
     res.status(200).send("User updated successfully");
   } catch (err) {
-    res.status(500).send(err.message);
+    res.status(400).send(err.message);
   }
 });
 
