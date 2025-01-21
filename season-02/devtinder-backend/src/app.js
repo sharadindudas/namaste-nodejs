@@ -5,6 +5,7 @@ const { validateSignup, validateLogin } = require("./utils/validation");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middlewares/auth");
 
 const app = express();
 const PORT = process.env.PORT;
@@ -93,24 +94,10 @@ app.post("/login", async (req, res) => {
 });
 
 // Get user profile
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    // Get token from request cookies
-    const { token } = req.cookies;
-
-    // Validation of token
-    if (!token) {
-      return res.status(401).send("Please Login to continue");
-    }
-
-    // Decode the payload
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Get the user details
-    const user = await UserModel.findById(decoded.id).select("-password");
-    if (!user) {
-      return res.status(404).send("User does not exists");
-    }
+    // Get the user from auth middleware
+    const user = req.user;
 
     // Return the response
     res.status(200).send(user);
@@ -139,7 +126,7 @@ app.get("/user", async (req, res) => {
 });
 
 // Feed api - get all users
-app.get("/feed", async (req, res) => {
+app.get("/feed", userAuth, async (req, res) => {
   try {
     // Find all users
     const users = await UserModel.find({}).select("-password");
@@ -211,6 +198,13 @@ app.patch("/user/:id", async (req, res) => {
   } catch (err) {
     res.status(400).send(err.message);
   }
+});
+
+// Send connection request
+app.post("/sendConnectionRequest", userAuth, (req, res) => {
+  const user = req.user;
+
+  res.status(200).send(`Connection request is sent by ${user.firstName}`);
 });
 
 // Connection to database
