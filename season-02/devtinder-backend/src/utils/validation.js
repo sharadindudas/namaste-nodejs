@@ -24,4 +24,25 @@ const validateLogin = (body) => {
   }
 };
 
-module.exports = { validateSignup, validateLogin };
+// Edit profile validation
+const validateEditProfile = (body) => {
+  // Set the fields allowed to be updated
+  const allowedEditFields = [
+    "firstName",
+    "lastName",
+    "age",
+    "gender",
+    "skills",
+    "about",
+    "photoUrl",
+  ];
+
+  const isEditAllowed = Object.keys(body).every((field) =>
+    allowedEditFields.includes(field)
+  );
+  if (!isEditAllowed) {
+    throw new Error("Invalid Edit Request");
+  }
+};
+
+module.exports = { validateSignup, validateLogin, validateEditProfile };

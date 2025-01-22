@@ -1,19 +1,15 @@
 const express = require("express");
-const connectMongoDB = require("./config/database");
 const cookieParser = require("cookie-parser");
+const connectMongoDB = require("./config/database");
 const authRouter = require("./routes/auth");
-const userRouter = require("./routes/user");
 const profileRouter = require("./routes/profile");
 
 const app = express();
 const PORT = process.env.PORT;
 
+// Middlewares
 app.use(express.json());
 app.use(cookieParser());
-
-app.use("/auth", authRouter)
-app.use("/user", userRouter)
-app.use("/profile", profileRouter)
 
 // Connection to database
 connectMongoDB()
@@ -28,3 +24,7 @@ connectMongoDB()
   .catch((err) => {
     console.error(err.message);
   });
+
+// Routes
+app.use("/auth", authRouter);
+app.use("/profile", profileRouter);

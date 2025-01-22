@@ -55,6 +55,7 @@ const userSchema = new mongoose.Schema(
     about: {
       type: String,
       trim: true,
+      default: "This is a default about section",
     },
     photoUrl: {
       type: String,
