@@ -34,14 +34,19 @@ const validateEditProfile = (body) => {
     "gender",
     "skills",
     "about",
-    "photoUrl",
   ];
 
+  // Check if the data provided can be updated or not
   const isEditAllowed = Object.keys(body).every((field) =>
     allowedEditFields.includes(field)
   );
   if (!isEditAllowed) {
-    throw new Error("Invalid Edit Request");
+    throw new Error("Please provide the proper fields to edit");
+  }
+
+  // Check if the skills length is less than 10 or not
+  if (body?.skills.length > 10) {
+    throw new Error("Skills cannot be more than 10");
   }
 };
 
