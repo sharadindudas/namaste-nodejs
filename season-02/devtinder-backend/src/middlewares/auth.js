@@ -15,7 +15,7 @@ const userAuth = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // Get the user
-    const user = await UserModel.findById(decoded.id).select("-password");
+    const user = await UserModel.findById(decoded.id);
     if (!user) {
       return res.status(404).send("User does not exists");
     }

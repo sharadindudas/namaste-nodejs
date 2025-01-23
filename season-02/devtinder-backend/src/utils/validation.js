@@ -50,4 +50,8 @@ const validateEditProfile = (body) => {
   }
 };
 
-module.exports = { validateSignup, validateLogin, validateEditProfile };
+module.exports = {
+  validateSignup,
+  validateLogin,
+  validateEditProfile
+};
