@@ -7,9 +7,16 @@ const viewprofile = async (req, res) => {
     const user = req.user;
 
     // Return the response
-    res.status(200).send(user);
+    res.status(200).json({
+      success: true,
+      message: "Fetched user successfully",
+      data: user,
+    });
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 
@@ -19,17 +26,26 @@ const editprofile = async (req, res) => {
     // Validation of data
     validateEditProfile(req.body);
 
-    // Get the user data
-    const user = req.user;
+    // Get the logged in user data
+    const loggedInUser = req.user;
 
-    // Update the user details
-    Object.keys(req.body).forEach((field) => (user[field] = req.body[field]));
-    await user.save();
+    // Update the user data in db
+    Object.keys(req.body).forEach(
+      (field) => (loggedInUser[field] = req.body[field])
+    );
+    await loggedInUser.save({ validateBeforeSave: false });
 
     // Return the response
-    res.status(200).send("Profile updated successfully");
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: loggedInUser,
+    });
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 

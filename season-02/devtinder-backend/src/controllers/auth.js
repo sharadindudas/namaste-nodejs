@@ -14,7 +14,10 @@ const signup = async (req, res) => {
     // Check if the user already exists in the db or not
     const userExists = await UserModel.findOne({ email });
     if (userExists) {
-      return res.status(409).send("User already exists, Please Login");
+      return res.status(409).json({
+        success: false,
+        message: "User already exists, Please Login",
+      });
     }
 
     // Hash the password
@@ -31,10 +34,20 @@ const signup = async (req, res) => {
     // Saving the user
     await newuser.save();
 
+    // Remove sensitive data
+    newuser.password = undefined;
+
     // Return the response
-    res.status(201).send("User added successfully");
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      data: newuser,
+    });
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 
@@ -50,17 +63,26 @@ const login = async (req, res) => {
     // Check if the user exists in the db or not
     const userExists = await UserModel.findOne({ email });
     if (!userExists) {
-      return res.status(404).send("User does not exists", 404);
+      return res.status(404).json({
+        success: false,
+        message: "User does not exists",
+      });
     }
 
     // Compare password
     const isValidPassword = await userExists.validatePassword(password);
     if (!isValidPassword) {
-      return res.status(403).send("Invalid Credentials");
+      return res.status(403).json({
+        success: false,
+        message: "Invalid Credentials",
+      });
     }
 
     // Create a jwt token
     const token = userExists.generateJwt();
+
+    // Remove sensitive data
+    userExists.password = undefined;
 
     // Send the cookie along with the response
     res
@@ -70,16 +92,26 @@ const login = async (req, res) => {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .status(200)
-      .send("Login successful !!!");
+      .json({
+        success: true,
+        message: "Logged in successfully",
+        data: userExists,
+      });
   } catch (err) {
-    res.status(400).send(err.message);
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 
 // Logout
 const logout = async (req, res) => {
   // Clear the cookie and return the response
-  res.clearCookie("token").status(200).send("Logged out successfully");
+  res.clearCookie("token").status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
 };
 
 module.exports = { signup, login, logout };

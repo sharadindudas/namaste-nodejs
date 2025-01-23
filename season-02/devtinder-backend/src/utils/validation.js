@@ -26,8 +26,8 @@ const validateLogin = (body) => {
 
 // Edit profile validation
 const validateEditProfile = (body) => {
-  // Set the fields allowed to be updated
-  const allowedEditFields = [
+  // Set the fields to be allowed for edit
+  const allowedFieldsToEdit = [
     "firstName",
     "lastName",
     "age",
@@ -36,17 +36,17 @@ const validateEditProfile = (body) => {
     "about",
   ];
 
-  // Check if the data provided can be updated or not
-  const isEditAllowed = Object.keys(body).every((field) =>
-    allowedEditFields.includes(field)
+  // Validation of data
+  const isAllowed = Object.keys(body).every((field) =>
+    allowedFieldsToEdit.includes(field)
   );
-  if (!isEditAllowed) {
-    throw new Error("Please provide the proper fields to edit");
+  if (!isAllowed) {
+    throw new Error("Please provide proper fields to edit");
   }
 
-  // Check if the skills length is less than 10 or not
+  // Check if skills is less than 10
   if (body?.skills.length > 10) {
-    throw new Error("Skills cannot be more than 10");
+    throw new Error("Skills must not exceed 10");
   }
 };
 
