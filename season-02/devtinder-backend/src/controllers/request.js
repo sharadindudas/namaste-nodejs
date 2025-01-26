@@ -1,6 +1,5 @@
 const ConnectionRequestModel = require("../models/connectionRequest");
 const UserModel = require("../models/user");
-const mongoose = require("mongoose");
 
 const sendconnectionrequest = async (req, res) => {
   try {
@@ -75,4 +74,48 @@ const sendconnectionrequest = async (req, res) => {
   }
 };
 
-module.exports = { sendconnectionrequest };
+const reviewconnectionrequest = async (req, res) => {
+  try {
+    // Get data from request params and auth middleware
+    const { status, requestId } = req.params;
+    const loggedInUser = req.user;
+
+    // Validation of status
+    const allowedStatus = ["accepted", "rejected"];
+    if (!allowedStatus.includes(status)) {
+      return res.status(409).json({
+        success: false,
+        message: `Status is not allowed`,
+      });
+    }
+
+    // Check if connection request exists in the db or not
+    const connectionRequestExists = await ConnectionRequestModel.findOne({
+      _id: requestId,
+      toUserId: loggedInUser._id,
+      status: "interested",
+    });
+    console.log(connectionRequestExists);
+    if (!connectionRequestExists) {
+      return res.status(404).json({
+        success: false,
+        message: `Connection request does not exists`,
+      });
+    }
+
+    // Update the status
+    connectionRequestExists.status = status;
+    const data = await connectionRequestExists.save({
+      validateBeforeSave: false,
+    });
+
+    // Return the response
+    res.status(200).json({
+      success: true,
+      message: `Connection request ${status} successfully`,
+      data,
+    });
+  } catch (err) {}
+};
+
+module.exports = { sendconnectionrequest, reviewconnectionrequest };
