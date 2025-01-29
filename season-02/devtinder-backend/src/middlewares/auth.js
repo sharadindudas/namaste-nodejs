@@ -1,33 +1,28 @@
-const jwt = require("jsonwebtoken");
 const UserModel = require("../models/user");
+const { AsyncHandler, ErrorHandler } = require("../utils/handlers");
+const jwt = require("jsonwebtoken");
 
-const userAuth = async (req, res, next) => {
-  try {
-    // Get the token from request cookies
-    const { token } = req.cookies;
-
+const userAuth = AsyncHandler(async (req, res, next) => {
     // Validation of token
+    const { token } = req.cookies;
     if (!token) {
-      throw new Error("Please Login to continue");
+        throw new ErrorHandler("Please login to continue", 400);
     }
 
     // Decode the token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Get the user
-    const user = await UserModel.findById(decoded.id);
+    // Get the user details
+    const user = await UserModel.findById(decoded._id);
     if (!user) {
-      return res.status(404).send("User does not exists");
+        throw new ErrorHandler("User does not exists", 404);
     }
 
-    // Pass the user inside request
-    req.user = user;
+    // Add the user data inside request
+    req.user = user
 
     // Move to next handler function
-    next();
-  } catch (err) {
-    res.status(400).send(err.message);
-  }
-};
+    next()
+});
 
 module.exports = { userAuth };

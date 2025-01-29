@@ -1,101 +1,75 @@
-const { validateEditProfile } = require("../utils/validation");
+const { AsyncHandler, ErrorHandler } = require("../utils/handlers");
+const { validateEditProfile, validateChangePassword } = require("../utils/validation");
 const bcrypt = require("bcrypt");
-const validator = require("validator");
 
-// Get user details
-const viewprofile = async (req, res) => {
-  try {
-    // Get the user from auth middleware
-    const loggedInUser = req.user;
+// Get user
+const viewProfile = AsyncHandler(async (req, res, next) => {
+    // Get the user details
+    const user = req.user;
 
     // Remove sensitive data
-    loggedInUser.password = undefined;
+    user.password = undefined;
 
     // Return the response
     res.status(200).json({
-      success: true,
-      message: "Fetched user successfully",
-      data: loggedInUser,
+        success: false,
+        message: "Fetched user details successfully",
+        data: user
     });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      message: err.message,
-    });
-  }
-};
+});
 
-// Edit user details
-const editprofile = async (req, res) => {
-  try {
+// Edit user
+const editProfile = AsyncHandler(async (req, res, next) => {
+    // Get logged in user from auth middleware
+    const loggedInUser = req.user;
+
     // Validation of data
     validateEditProfile(req.body);
 
-    // Get the logged in user data
-    const loggedInUser = req.user;
-
-    // Update the user data in db
-    Object.keys(req.body).forEach(
-      (field) => (loggedInUser[field] = req.body[field])
-    );
-    await loggedInUser.save({ validateBeforeSave: false });
+    // Update the fields for the user
+    Object.keys(req.body).forEach((field) => (loggedInUser[field] = req.body[field]));
+    await loggedInUser.save();
 
     // Remove sensitive data
     loggedInUser.password = undefined;
 
     // Return the response
     res.status(200).json({
-      success: true,
-      message: "Profile updated successfully",
-      data: loggedInUser,
+        success: true,
+        message: "Updated user profile successfully",
+        data: loggedInUser
     });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      message: err.message,
-    });
-  }
-};
+});
 
 // Change password
-const changepassword = async (req, res) => {
-  try {
+const changePassword = AsyncHandler(async (req, res, next) => {
     // Get data from request body
     const { oldPassword, newPassword } = req.body;
 
-    // Get the logged in user data
+    // Validation of data
+    validateChangePassword(req.body);
+
+    // Get logged in user data
     const loggedInUser = req.user;
 
     // Validation of password
     const isValidPassword = await loggedInUser.validatePassword(oldPassword);
     if (!isValidPassword) {
-      return res.status(403).json({
-        success: false,
-        message: "Invalid Credentials",
-      });
+        throw new ErrorHandler("Invalid Credentials", 403);
     }
 
-    // Validation of new password
-    if (!validator.isStrongPassword(newPassword)) {
-      throw new Error("Please provide a strong password");
-    }
+    // Hash the password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
-    // Hash the password and update it
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    loggedInUser.password = hashedPassword;
+    // Update the password
+    loggedInUser.password = hashedNewPassword;
     await loggedInUser.save({ validateBeforeSave: false });
 
     // Return the response
-    res.status(200).json({
-      success: true,
-      message: "Password updated successfully",
+    return res.status(200).json({
+        success: true,
+        message: "Password updated successfully"
     });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      message: err.message,
-    });
-  }
-};
+});
 
-module.exports = { viewprofile, editprofile, changepassword };
+module.exports = { viewProfile, editProfile, changePassword };

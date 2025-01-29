@@ -1,57 +1,116 @@
+const { ErrorHandler } = require("./handlers");
 const validator = require("validator");
 
-// Signup validation
 const validateSignup = (body) => {
-  const { firstName, lastName, email, password } = body;
+    const { firstName, lastName, email, password } = body;
 
-  if (!firstName || !lastName) {
-    throw new Error("Please provide a name");
-  } else if (!validator.isEmail(email)) {
-    throw new Error("Please provide a valid email");
-  } else if (!validator.isStrongPassword(password)) {
-    throw new Error("Please provide a strong password");
-  }
+    if (!firstName || !lastName) {
+        throw new ErrorHandler("Please provide a name", 400);
+    }
+
+    if (!validator.isEmail(email)) {
+        throw new ErrorHandler("Please provide a valid email", 400);
+    }
+
+    if (
+        !validator.isStrongPassword(password, {
+            minLength: 8,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1
+        })
+    ) {
+        throw new ErrorHandler(
+            "Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one number, and one symbol",
+            400
+        );
+    }
 };
 
-// Login validation
 const validateLogin = (body) => {
-  const { email, password } = body;
+    const { email, password } = body;
 
-  if (!validator.isEmail(email)) {
-    throw new Error("Please provide a valid email");
-  } else if (!validator.isStrongPassword(password)) {
-    throw new Error("Please provide a strong password");
-  }
+    if (!validator.isEmail(email)) {
+        throw new ErrorHandler("Please provide a valid email", 400);
+    }
+
+    if (
+        !validator.isStrongPassword(password, {
+            minLength: 8,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1
+        })
+    ) {
+        throw new ErrorHandler(
+            "Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one number, and one symbol",
+            400
+        );
+    }
 };
 
-// Edit profile validation
 const validateEditProfile = (body) => {
-  // Set the fields to be allowed for edit
-  const allowedFieldsToEdit = [
-    "firstName",
-    "lastName",
-    "age",
-    "gender",
-    "skills",
-    "about",
-  ];
+    // Set the fields allowed to be edited
+    const allowedFieldsToEdit = ["firstName", "lastName", "age", "gender", "skills", "about"];
 
-  // Validation of data
-  const isAllowed = Object.keys(body).every((field) =>
-    allowedFieldsToEdit.includes(field)
-  );
-  if (!isAllowed) {
-    throw new Error("Please provide proper fields to edit");
-  }
+    // Check if all the fields are allowed or not
+    const isAllowed = Object.keys(body).every((field) => allowedFieldsToEdit.includes(field));
+    if (!isAllowed) {
+        throw new ErrorHandler("Please provide the proper fields", 400);
+    }
 
-  // Check if skills is less than 10
-  if (body?.skills.length > 10) {
-    throw new Error("Skills must not exceed 10");
-  }
+    // Validation of skills
+    if (body?.skills.length > 5) {
+        throw new ErrorHandler("Skills cannot be more than 5", 400);
+    }
+};
+
+const validateChangePassword = (body) => {
+    const { newPassword } = body;
+
+    if (
+        !validator.isStrongPassword(newPassword, {
+            minLength: 8,
+            minLowercase: 1,
+            minUppercase: 1,
+            minNumbers: 1,
+            minSymbols: 1
+        })
+    ) {
+        throw new ErrorHandler(
+            "Password must be at least 8 characters long and include at least one lowercase letter, one uppercase letter, one number, and one symbol",
+            400
+        );
+    }
+};
+
+const validateSendConnectionRequest = (params) => {
+    const { status } = params;
+
+    const allowedStatus = ["interested", "ignored"];
+
+    if (!allowedStatus.includes(status)) {
+        throw new ErrorHandler(`Please provide a valid status type`, 400);
+    }
+};
+
+const validateReviewConnectionRequest = (params) => {
+    const { status } = params;
+
+    const allowedStatus = ["accepted", "rejected"];
+
+    if (!allowedStatus.includes(status)) {
+        throw new ErrorHandler(`Please provide a valid status type`, 400);
+    }
 };
 
 module.exports = {
-  validateSignup,
-  validateLogin,
-  validateEditProfile
+    validateSignup,
+    validateLogin,
+    validateEditProfile,
+    validateChangePassword,
+    validateSendConnectionRequest,
+    validateReviewConnectionRequest
 };

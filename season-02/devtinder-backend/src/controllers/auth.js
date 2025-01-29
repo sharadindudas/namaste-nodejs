@@ -1,10 +1,10 @@
-const { validateSignup, validateLogin } = require("../utils/validation");
 const UserModel = require("../models/user");
+const { AsyncHandler, ErrorHandler } = require("../utils/handlers");
+const { validateSignup, validateLogin } = require("../utils/validation");
 const bcrypt = require("bcrypt");
 
 // Signup
-const signup = async (req, res) => {
-  try {
+const signup = AsyncHandler(async (req, res, next) => {
     // Get data from request body
     const { firstName, lastName, email, password } = req.body;
 
@@ -14,46 +14,34 @@ const signup = async (req, res) => {
     // Check if the user already exists in the db or not
     const userExists = await UserModel.findOne({ email });
     if (userExists) {
-      return res.status(409).json({
-        success: false,
-        message: "User already exists, Please Login",
-      });
+        throw new ErrorHandler("User already exists, Please Login", 409);
     }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new instance of the user
-    const newuser = new UserModel({
-      firstName,
-      lastName,
-      email,
-      password: hashedPassword,
+    // Create a new user
+    const newUser = new UserModel({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword
     });
-
-    // Saving the user
-    await newuser.save();
+    await newUser.save();
 
     // Remove sensitive data
-    newuser.password = undefined;
+    newUser.password = undefined;
 
     // Return the response
     res.status(201).json({
-      success: true,
-      message: "User registered successfully",
-      data: newuser,
+        success: true,
+        message: "User registered successfully",
+        data: newUser
     });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      message: err.message,
-    });
-  }
-};
+});
 
 // Login
-const login = async (req, res) => {
-  try {
+const login = AsyncHandler(async (req, res, next) => {
     // Get data from request body
     const { email, password } = req.body;
 
@@ -63,55 +51,43 @@ const login = async (req, res) => {
     // Check if the user exists in the db or not
     const userExists = await UserModel.findOne({ email });
     if (!userExists) {
-      return res.status(404).json({
-        success: false,
-        message: "User does not exists",
-      });
+        throw new ErrorHandler("User does not exists", 404);
     }
 
-    // Compare password
+    // Validation of password
     const isValidPassword = await userExists.validatePassword(password);
     if (!isValidPassword) {
-      return res.status(403).json({
-        success: false,
-        message: "Invalid Credentials",
-      });
+        throw new ErrorHandler("Invalid Credentials", 403);
     }
 
-    // Create a jwt token
+    // Generate jwt token
     const token = userExists.generateJwt();
 
     // Remove sensitive data
     userExists.password = undefined;
 
-    // Send the cookie along with the response
-    res
-      .cookie("token", token, {
+    // Set the cookie and return the response
+    res.cookie("token", token, {
         httpOnly: true,
         secure: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      })
-      .status(200)
-      .json({
-        success: true,
-        message: "Logged in successfully",
-        data: userExists,
-      });
-  } catch (err) {
-    res.status(400).json({
-      success: false,
-      message: err.message,
-    });
-  }
-};
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1000
+    })
+        .status(200)
+        .json({
+            success: true,
+            message: "User logged in successfully",
+            data: userExists
+        });
+});
 
 // Logout
-const logout = async (req, res) => {
-  // Clear the cookie and return the response
-  res.clearCookie("token").status(200).json({
-    success: true,
-    message: "Logged out successfully",
-  });
+const logout = (req, res) => {
+    // Remove the cookies and return the response
+    res.clearCookie("token").status(200).json({
+        success: true,
+        message: "Logged out successfully"
+    });
 };
 
 module.exports = { signup, login, logout };
