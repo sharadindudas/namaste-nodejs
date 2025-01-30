@@ -88,21 +88,17 @@ const validateChangePassword = (body) => {
 
 const validateSendConnectionRequest = (params) => {
     const { status } = params;
-
     const allowedStatus = ["interested", "ignored"];
-
     if (!allowedStatus.includes(status)) {
-        throw new ErrorHandler(`Please provide a valid status type`, 400);
+        throw new ErrorHandler("Status is not valid", 400);
     }
 };
 
 const validateReviewConnectionRequest = (params) => {
     const { status } = params;
-
     const allowedStatus = ["accepted", "rejected"];
-
     if (!allowedStatus.includes(status)) {
-        throw new ErrorHandler(`Please provide a valid status type`, 400);
+        throw new ErrorHandler("Status is not allowed", 400);
     }
 };
 

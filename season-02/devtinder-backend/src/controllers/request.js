@@ -5,10 +5,9 @@ const UserModel = require("../models/user");
 
 // Send connection request
 const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
-    // Get data from request params and logged in user id
-    const status = req.params.status;
-    const toUserId = req.params.userId;
+    // Get logged in user id from auth middleware and data from request params
     const fromUserId = req.user._id;
+    const { status, userId: toUserId } = req.params;
 
     // Validation of data
     validateSendConnectionRequest(req.params);
@@ -21,7 +20,7 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
 
     // Check if the sender and receiver is different or not
     if (String(fromUserId) === String(toUserId)) {
-        throw new ErrorHandler("Cannot send connection request to yourself", 409);
+        throw new ErrorHandler("You cannot send connection request to yourself", 409);
     }
 
     // Check if the connection request already exists in the db or not
@@ -32,7 +31,7 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
         ]
     });
     if (connectionRequestExists) {
-        throw new ErrorHandler("Connection request already exists", 409);
+        throw new ErrorHandler("Connection request already sent", 409);
     }
 
     // Create a new connection request
@@ -42,20 +41,25 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
         status
     });
 
+    // Populate the new connection request
+    const populatedConnectionRequest = await newConnectionRequest.populate([
+        { path: "fromUserId", select: "_id firstName lastName email" },
+        { path: "toUserId", select: "_id firstName lastName email" }
+    ]);
+
     // Return the response
-    return res.status(200).json({
+    res.status(201).json({
         success: true,
         message: `Connection request ${status === "interested" ? "sent" : "ignored"} successfully`,
-        data: newConnectionRequest
+        data: populatedConnectionRequest
     });
 });
 
 // Review connection request
 const reviewConnectionRequest = AsyncHandler(async (req, res, next) => {
-    // Get data from request params and logged in user details
-    const status = req.params.status;
-    const requestId = req.params.requestId;
-    const loggedInUser = req.user;
+    // Get logged in user id from auth middleware and data from request params
+    const toUserId = req.user._id;
+    const { status, requestId } = req.params;
 
     // Validation of data
     validateReviewConnectionRequest(req.params);
@@ -63,22 +67,28 @@ const reviewConnectionRequest = AsyncHandler(async (req, res, next) => {
     // Check if the connection request exists in the db or not
     const connectionRequestExists = await ConnectionRequestModel.findOne({
         _id: requestId,
-        toUserId: loggedInUser._id,
+        toUserId,
         status: "interested"
     });
     if (!connectionRequestExists) {
         throw new ErrorHandler("Connection request does not exists", 404);
     }
 
-    // Update the status
+    // Update the connection request status
     connectionRequestExists.status = status;
     const updatedConnectionRequest = await connectionRequestExists.save({ validateBeforeSave: false });
 
+    // Populate the updated connection request
+    const populatedConnectionRequest = await updatedConnectionRequest.populate([
+        {path: "fromUserId", select: "_id firstName lastName email"},
+        {path: "toUserId", select: "_id firstName lastName email"},
+    ])
+
     // Return the response
-    return res.status(200).json({
+    res.status(200).json({
         success: true,
         message: `Connection request ${status} successfully`,
-        data: updatedConnectionRequest
+        data: populatedConnectionRequest
     });
 });
 

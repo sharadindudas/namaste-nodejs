@@ -1,16 +1,17 @@
 const mongoose = require("mongoose");
+const { ErrorHandler } = require("../utils/handlers");
 
 const connectionRequestSchema = new mongoose.Schema(
     {
         fromUserId: {
-            type: String,
-            required: [true, "Please provide the sender id"],
-            trim: true
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: [true, "Please provide the sender id"]
         },
         toUserId: {
-            type: String,
-            required: [true, "Please provide the receiver id"],
-            trim: true
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: [true, "Please provide the receiver id"]
         },
         status: {
             type: String,
@@ -27,6 +28,14 @@ const connectionRequestSchema = new mongoose.Schema(
 
 // Applying indexing
 connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
+
+// Check if the sender and receiver is different or not
+// connectionRequestSchema.pre("save", function (next) {
+//     if (this.fromUserId.equals(this.toUserId)) {
+//         throw new ErrorHandler("You cannot send connection request to yourself", 409);
+//     }
+//     next();
+// });
 
 const ConnectionRequestModel = mongoose.model("ConnectionRequest", connectionRequestSchema);
 module.exports = ConnectionRequestModel;
