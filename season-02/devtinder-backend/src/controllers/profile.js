@@ -1,32 +1,31 @@
 const { AsyncHandler, ErrorHandler } = require("../utils/handlers");
-const { validateEditProfile, validateChangePassword } = require("../utils/validation");
-const bcrypt = require("bcrypt");
+const { validateEditProfile, validateChangePassword } = require("../utils/validations");
 
-// Get user
+// View user profile
 const viewProfile = AsyncHandler(async (req, res, next) => {
-    // Get the user details
-    const user = req.user;
+    // Get logged in user data
+    const loggedInUser = req.user;
 
     // Remove sensitive data
-    user.password = undefined;
+    loggedInUser.password = undefined;
 
     // Return the response
     res.status(200).json({
-        success: false,
-        message: "Fetched user details successfully",
-        data: user
+        success: true,
+        message: "Fetched user profile successfully",
+        data: loggedInUser
     });
 });
 
-// Edit user
+// Edit user profile
 const editProfile = AsyncHandler(async (req, res, next) => {
-    // Get logged in user from auth middleware
+    // Get logged in user data
     const loggedInUser = req.user;
 
     // Validation of data
     validateEditProfile(req.body);
 
-    // Update the fields for the user
+    // Update the user data
     Object.keys(req.body).forEach((field) => (loggedInUser[field] = req.body[field]));
     await loggedInUser.save();
 
@@ -36,7 +35,7 @@ const editProfile = AsyncHandler(async (req, res, next) => {
     // Return the response
     res.status(200).json({
         success: true,
-        message: "Updated user profile successfully",
+        message: "Updated user successfully",
         data: loggedInUser
     });
 });
@@ -58,17 +57,14 @@ const changePassword = AsyncHandler(async (req, res, next) => {
         throw new ErrorHandler("Invalid Credentials", 403);
     }
 
-    // Hash the password
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
     // Update the password
-    loggedInUser.password = hashedNewPassword;
+    loggedInUser.password = newPassword;
     await loggedInUser.save({ validateBeforeSave: false });
 
     // Return the response
-    return res.status(200).json({
+    res.status(200).json({
         success: true,
-        message: "Password updated successfully"
+        message: "Updated password successfully"
     });
 });
 

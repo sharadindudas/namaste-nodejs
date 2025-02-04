@@ -1,12 +1,11 @@
 const UserModel = require("../models/user");
 const { AsyncHandler, ErrorHandler } = require("../utils/handlers");
-const { validateSignup, validateLogin } = require("../utils/validation");
-const bcrypt = require("bcrypt");
+const { validateSignup, validateLogin } = require("../utils/validations");
 
 // Signup
 const signup = AsyncHandler(async (req, res, next) => {
     // Get data from request body
-    const { firstName, lastName, email, password } = req.body;
+    const { name, email, password } = req.body;
 
     // Validation of data
     validateSignup(req.body);
@@ -14,20 +13,15 @@ const signup = AsyncHandler(async (req, res, next) => {
     // Check if the user already exists in the db or not
     const userExists = await UserModel.findOne({ email });
     if (userExists) {
-        throw new ErrorHandler("User already exists, Please Login", 409);
+        throw new ErrorHandler("User already exists", 409);
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create a new user
-    const newUser = new UserModel({
-        firstName,
-        lastName,
+    // Save the user in db
+    const newUser = await UserModel.create({
+        name,
         email,
-        password: hashedPassword
+        password
     });
-    await newUser.save();
 
     // Remove sensitive data
     newUser.password = undefined;
@@ -35,7 +29,7 @@ const signup = AsyncHandler(async (req, res, next) => {
     // Return the response
     res.status(201).json({
         success: true,
-        message: "User registered successfully",
+        message: "Registered successfully",
         data: newUser
     });
 });
@@ -61,33 +55,32 @@ const login = AsyncHandler(async (req, res, next) => {
     }
 
     // Generate jwt token
-    const token = userExists.generateJwt();
+    const token = userExists.generateJWT();
 
     // Remove sensitive data
     userExists.password = undefined;
 
-    // Set the cookie and return the response
-    res.cookie("token", token, {
+    // Set the token to cookie and return the response
+    res.cookie("devtinderToken", token, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
-        maxAge: 24 * 60 * 60 * 1000
+        maxAge: 24 * 60 * 60 * 1000,
+        sameSite: "strict"
     })
         .status(200)
         .json({
             success: true,
-            message: "User logged in successfully",
+            message: "Logged in successfully",
             data: userExists
         });
 });
 
 // Logout
-const logout = (req, res) => {
-    // Remove the cookies and return the response
-    res.clearCookie("token").status(200).json({
+const logout = AsyncHandler(async (req, res, next) => {
+    res.clearCookie("devtinderToken").status(200).json({
         success: true,
         message: "Logged out successfully"
     });
-};
+});
 
 module.exports = { signup, login, logout };

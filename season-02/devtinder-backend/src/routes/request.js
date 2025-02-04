@@ -4,7 +4,8 @@ const { sendConnectionRequest, reviewConnectionRequest } = require("../controlle
 
 const requestRouter = Router();
 
-requestRouter.post("/send/:status/:userId", userAuth, sendConnectionRequest);
-requestRouter.post("/review/:status/:requestId", userAuth, reviewConnectionRequest);
+requestRouter.use(userAuth);
+requestRouter.post("/send/:status/:userId", sendConnectionRequest);
+requestRouter.post("/review/:status/:requestId", reviewConnectionRequest);
 
 module.exports = requestRouter;

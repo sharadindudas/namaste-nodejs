@@ -1,29 +1,29 @@
 {
-  "name": "devtinder-backend",
-  "version": "1.0.0",
-  "description": "tinder for developers",
-  "main": "app.js",
-  "scripts": {
-    "start": "node --env-file=.env src/app.js",
-    "dev": "nodemon --env-file=.env src/app.js"
-  },
-  "keywords": [
-    "nodejs",
-    "javascript",
-    "express",
-    "mongodb"
-  ],
-  "author": "Sharadindu Das",
-  "license": "ISC",
-  "dependencies": {
-    "bcrypt": "^5.1.1",
-    "cookie-parser": "^1.4.7",
-    "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.9.4",
-    "validator": "^13.12.0"
-  },
-  "devDependencies": {
-    "prettier": "^3.4.2"
-  }
+    "name": "devtinder-backend",
+    "version": "1.0.0",
+    "description": "tinder for developers",
+    "main": "index.js",
+    "scripts": {
+        "start": "node --env-file=.env src/index.js",
+        "dev": "nodemon --env-file=.env src/index.js"
+    },
+    "keywords": [
+        "nodejs",
+        "javascript",
+        "express",
+        "mongodb"
+    ],
+    "author": "Sharadindu Das",
+    "license": "ISC",
+    "dependencies": {
+        "bcrypt": "^5.1.1",
+        "cookie-parser": "^1.4.7",
+        "express": "^4.21.2",
+        "jsonwebtoken": "^9.0.2",
+        "mongoose": "^8.9.4",
+        "validator": "^13.12.0"
+    },
+    "devDependencies": {
+        "prettier": "^3.4.2"
+    }
 }

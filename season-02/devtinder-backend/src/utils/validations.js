@@ -1,10 +1,10 @@
-const { ErrorHandler } = require("./handlers");
 const validator = require("validator");
+const { ErrorHandler } = require("./handlers");
 
-const validateSignup = (body) => {
-    const { firstName, lastName, email, password } = body;
+const validateSignup = (data) => {
+    const { name, email, password } = data;
 
-    if (!firstName || !lastName) {
+    if (name.length === 0) {
         throw new ErrorHandler("Please provide a name", 400);
     }
 
@@ -15,8 +15,8 @@ const validateSignup = (body) => {
     if (
         !validator.isStrongPassword(password, {
             minLength: 8,
-            minLowercase: 1,
             minUppercase: 1,
+            minLowercase: 1,
             minNumbers: 1,
             minSymbols: 1
         })
@@ -28,8 +28,8 @@ const validateSignup = (body) => {
     }
 };
 
-const validateLogin = (body) => {
-    const { email, password } = body;
+const validateLogin = (data) => {
+    const { email, password } = data;
 
     if (!validator.isEmail(email)) {
         throw new ErrorHandler("Please provide a valid email", 400);
@@ -38,8 +38,8 @@ const validateLogin = (body) => {
     if (
         !validator.isStrongPassword(password, {
             minLength: 8,
-            minLowercase: 1,
             minUppercase: 1,
+            minLowercase: 1,
             minNumbers: 1,
             minSymbols: 1
         })
@@ -51,30 +51,27 @@ const validateLogin = (body) => {
     }
 };
 
-const validateEditProfile = (body) => {
-    // Set the fields allowed to be edited
-    const allowedFieldsToEdit = ["firstName", "lastName", "age", "gender", "skills", "about"];
+const validateEditProfile = (data) => {
+    const allowedFields = ["name", "age", "gender", "about", "skills"];
 
-    // Check if all the fields are allowed or not
-    const isAllowed = Object.keys(body).every((field) => allowedFieldsToEdit.includes(field));
+    const isAllowed = Object.keys(data).every((field) => allowedFields.includes(field));
     if (!isAllowed) {
         throw new ErrorHandler("Please provide the proper fields", 400);
     }
 
-    // Validation of skills
-    if (body?.skills.length > 5) {
-        throw new ErrorHandler("Skills cannot be more than 5", 400);
+    if (data?.skills?.length > 5) {
+        throw new ErrorHandler("Skills must not be more than 5", 400);
     }
 };
 
-const validateChangePassword = (body) => {
-    const { newPassword } = body;
+const validateChangePassword = (data) => {
+    const { newPassword } = data;
 
     if (
         !validator.isStrongPassword(newPassword, {
             minLength: 8,
-            minLowercase: 1,
             minUppercase: 1,
+            minLowercase: 1,
             minNumbers: 1,
             minSymbols: 1
         })
@@ -86,19 +83,21 @@ const validateChangePassword = (body) => {
     }
 };
 
-const validateSendConnectionRequest = (params) => {
-    const { status } = params;
+const validateSendConnectionRequest = (data) => {
+    const { status } = data;
     const allowedStatus = ["interested", "ignored"];
+
     if (!allowedStatus.includes(status)) {
-        throw new ErrorHandler("Status is not valid", 400);
+        throw new ErrorHandler("Please provide a valid status", 400);
     }
 };
 
-const validateReviewConnectionRequest = (params) => {
-    const { status } = params;
+const validateReviewConnectionRequest = (data) => {
+    const { status } = data;
     const allowedStatus = ["accepted", "rejected"];
+
     if (!allowedStatus.includes(status)) {
-        throw new ErrorHandler("Status is not allowed", 400);
+        throw new ErrorHandler("Please provide a valid status", 400);
     }
 };
 
