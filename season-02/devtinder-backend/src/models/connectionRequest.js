@@ -25,7 +25,7 @@ const connectionRequestSchema = new mongoose.Schema(
     { timestamps: true, versionKey: false }
 );
 
-connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
+connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 }); // Compound indexing
 
 const ConnectionRequestModel = mongoose.model("ConnectionRequest", connectionRequestSchema);
 module.exports = ConnectionRequestModel;

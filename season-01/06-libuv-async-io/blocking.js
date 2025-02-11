@@ -13,15 +13,15 @@ fs.readFileSync("./file.txt", "utf-8");
 
 // Async function
 crypto.pbkdf2("password123", "salt", 500000, 50, "sha512", (err, key) => {
-  console.log("Second key is generated");
+    console.log("Second key is generated");
 });
 fs.readFile("./file.txt", "utf-8", (err, data) => {
-  console.log("File is read successfully");
+    console.log("File is read successfully");
 });
 
 function multiply(x, y) {
-  const result = x * y;
-  return result;
+    const result = x * y;
+    return result;
 }
 
 var c = multiply(a, b);

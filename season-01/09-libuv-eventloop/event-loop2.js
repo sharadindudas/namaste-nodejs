@@ -6,7 +6,7 @@ setImmediate(() => console.log("setImmediate"));
 Promise.resolve("Promise").then(console.log);
 
 fs.readFile("./file.txt", "utf-8", () => {
-  console.log("File reading cb");
+    console.log("File reading cb");
 });
 
 setTimeout(() => console.log("Timer expired"), 0);
@@ -14,7 +14,7 @@ setTimeout(() => console.log("Timer expired"), 0);
 process.nextTick(() => console.log("process.nextTick"));
 
 function print() {
-  console.log("A:", a);
+    console.log("A:", a);
 }
 print();
 

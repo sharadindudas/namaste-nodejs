@@ -7,13 +7,13 @@ setTimeout(() => console.log("Timer expired"), 0);
 Promise.resolve("Promise").then(console.log);
 
 fs.readFile("./file.txt", "utf-8", () => {
-  setTimeout(() => console.log("2nd timer"), 0);
+    setTimeout(() => console.log("2nd timer"), 0);
 
-  process.nextTick(() => console.log("2nd nextTick"));
+    process.nextTick(() => console.log("2nd nextTick"));
 
-  setImmediate(() => console.log("2nd setImmediate"));
-  
-  console.log("File reading cb");
+    setImmediate(() => console.log("2nd setImmediate"));
+
+    console.log("File reading cb");
 });
 
 process.nextTick(() => console.log("nextTick"));

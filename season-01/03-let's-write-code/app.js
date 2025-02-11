@@ -1,6 +1,6 @@
 var name = "Namaste Nodejs";
 var a = 10,
-  b = 20;
+    b = 20;
 console.log(name);
 console.log(a + b);
 

@@ -4,12 +4,12 @@ const a = 100;
 setImmediate(() => console.log("setImmediate callback"));
 
 fs.readFile("./file.txt", "utf-8", () => {
-  console.log("File reading callback");
+    console.log("File reading callback");
 });
 
 setTimeout(() => console.log("Timer expired"), 0);
 function print() {
-  console.log("A: ", a);
+    console.log("A: ", a);
 }
 print();
 console.log("Last line of the file");

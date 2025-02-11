@@ -2,9 +2,9 @@
 const http = require("http");
 
 const server = http.createServer((req, res) => {
-  res.end("Namaste Node.js");
+    res.end("Namaste Node.js");
 });
 
 server.listen(7000, () => {
-  console.log("Server started at PORT 7000");
+    console.log("Server started at PORT 7000");
 });

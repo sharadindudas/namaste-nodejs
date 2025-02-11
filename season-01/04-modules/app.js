@@ -14,7 +14,7 @@ console.log("Main entry point of the backend...");
 //! Importing from calculate module
 const { SumOfTwoNos, SubOfTwoNos, MulOfTwoNos } = require("./calculate");
 const a = 20,
-  b = 10;
+    b = 10;
 
 SumOfTwoNos(a, b);
 SubOfTwoNos(a, b);
