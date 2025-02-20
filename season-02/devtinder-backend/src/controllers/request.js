@@ -1,5 +1,5 @@
-const ConnectionRequestModel = require("../models/connectionRequest");
 const UserModel = require("../models/user");
+const ConnectionRequestModel = require("../models/connectionRequest");
 const { AsyncHandler, ErrorHandler } = require("../utils/handlers");
 const { validateSendConnectionRequest, validateReviewConnectionRequest } = require("../utils/validations");
 
@@ -8,13 +8,13 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
     // Get data from request params
     const { status, userId: toUserId } = req.params;
 
-    // Get logged in user id
+    // Get logged in user data
     const fromUserId = req.user._id;
 
     // Validation of data
     validateSendConnectionRequest(req.params);
 
-    // Check if the receiver exists in the db or not
+    // Check if the receiver (to user id) exists in the db or not
     const receiverExists = await UserModel.findById(toUserId);
     if (!receiverExists) {
         throw new ErrorHandler("User does not exists", 404);
@@ -22,7 +22,7 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
 
     // Check if the sender and receiver is different or not
     if (String(fromUserId) === String(toUserId)) {
-        throw new ErrorHandler("Cannot send connection request to yourself", 409);
+        throw new ErrorHandler("You cannot send connection request to yourself", 409);
     }
 
     // Check if the connection request already exists in the db or not
@@ -36,12 +36,9 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
         throw new ErrorHandler("Connection request already exists", 409);
     }
 
-    // Save the new connection request
-    const newConnectionRequest = await ConnectionRequestModel.create({
-        fromUserId,
-        toUserId,
-        status
-    });
+    // Create a new connection request
+    const newConnectionRequest = new ConnectionRequestModel({ fromUserId, toUserId, status });
+    await newConnectionRequest.save();
 
     // Populate the connection request data
     const populatedConnectionRequest = await newConnectionRequest.populate([
@@ -50,10 +47,10 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
     ]);
 
     // Return the response
-    return res.status(201).json({
+    res.status(201).json({
         success: true,
         message: `Connection request ${status === "interested" ? "sent" : status} successfully`,
-        datA: populatedConnectionRequest
+        data: populatedConnectionRequest
     });
 });
 
@@ -62,8 +59,8 @@ const reviewConnectionRequest = AsyncHandler(async (req, res, next) => {
     // Get data from request params
     const { status, requestId } = req.params;
 
-    // Get logged in user id
-    const loggedInUserId = req.user._id;
+    // Get logged in user data
+    const loggedInUser = req.user;
 
     // Validation of data
     validateReviewConnectionRequest(req.params);
@@ -71,8 +68,8 @@ const reviewConnectionRequest = AsyncHandler(async (req, res, next) => {
     // Check if the connection request exists in the db or not
     const connectionRequestExists = await ConnectionRequestModel.findOne({
         _id: requestId,
-        toUserId: loggedInUserId,
-        status: "interested"
+        status: "interested",
+        toUserId: loggedInUser._id
     });
     if (!connectionRequestExists) {
         throw new ErrorHandler("Connection request does not exists", 404);
@@ -80,10 +77,10 @@ const reviewConnectionRequest = AsyncHandler(async (req, res, next) => {
 
     // Update the connection request status
     connectionRequestExists.status = status;
-    const updatedConnectionRequest = await connectionRequestExists.save({ validateBeforeSave: false });
+    await connectionRequestExists.save({ validateBeforeSave: false });
 
     // Populate the connection request
-    const populatedConnectionRequest = await updatedConnectionRequest.populate([
+    const populatedConnectionRequest = await connectionRequestExists.populate([
         { path: "fromUserId", select: "name" },
         { path: "toUserId", select: "name" }
     ]);

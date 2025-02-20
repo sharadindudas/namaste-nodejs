@@ -3,7 +3,7 @@ const { AsyncHandler, ErrorHandler } = require("../utils/handlers");
 const { validateSignup, validateLogin } = require("../utils/validations");
 
 // Signup
-const signup = AsyncHandler(async (req, res, next) => {
+const Signup = AsyncHandler(async (req, res, next) => {
     // Get data from request body
     const { name, email, password } = req.body;
 
@@ -16,12 +16,9 @@ const signup = AsyncHandler(async (req, res, next) => {
         throw new ErrorHandler("User already exists", 409);
     }
 
-    // Save the user in db
-    const newUser = await UserModel.create({
-        name,
-        email,
-        password
-    });
+    // Create a new user
+    const newUser = new UserModel({ name, email, password });
+    await newUser.save();
 
     // Remove sensitive data
     newUser.password = undefined;
@@ -29,13 +26,13 @@ const signup = AsyncHandler(async (req, res, next) => {
     // Return the response
     res.status(201).json({
         success: true,
-        message: "Registered successfully",
+        message: "User registered successfully",
         data: newUser
     });
 });
 
 // Login
-const login = AsyncHandler(async (req, res, next) => {
+const Login = AsyncHandler(async (req, res, next) => {
     // Get data from request body
     const { email, password } = req.body;
 
@@ -51,20 +48,20 @@ const login = AsyncHandler(async (req, res, next) => {
     // Validation of password
     const isValidPassword = await userExists.validatePassword(password);
     if (!isValidPassword) {
-        throw new ErrorHandler("Invalid Credentials", 403);
+        throw new ErrorHandler("Invalid Credentials", 401);
     }
 
     // Generate jwt token
-    const token = userExists.generateJWT();
+    const token = userExists.generateJwt();
 
     // Remove sensitive data
     userExists.password = undefined;
 
-    // Set the token to cookie and return the response
-    res.cookie("devtinderToken", token, {
+    // Set the cookie and return the response
+    res.cookie("token", token, {
         httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
         secure: true,
-        maxAge: 24 * 60 * 60 * 1000,
         sameSite: "strict"
     })
         .status(200)
@@ -76,11 +73,12 @@ const login = AsyncHandler(async (req, res, next) => {
 });
 
 // Logout
-const logout = AsyncHandler(async (req, res, next) => {
-    res.clearCookie("devtinderToken").status(200).json({
+const Logout = AsyncHandler(async (req, res, next) => {
+    // Remove the cookies and return the response
+    res.clearCookie("token").status(200).json({
         success: true,
         message: "Logged out successfully"
     });
 });
 
-module.exports = { signup, login, logout };
+module.exports = { Signup, Login, Logout };

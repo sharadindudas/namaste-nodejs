@@ -6,12 +6,6 @@ POST /signup
 POST /login
 POST /logout
 
-### userRouter
-
-GET /user/requests/received
-GET /user/feed
-GET /user/connections
-
 ### profileRouter
 
 GET /profile/view
@@ -22,5 +16,11 @@ PATCH /profile/password
 
 POST /request/send/:status/:userId
 POST /request/review/:status/:requestId
+
+### userRouter
+
+GET /user/requests/received
+GET /user/feed
+GET /user/connections
 
 Status: interested, ignored, accepted, rejected
