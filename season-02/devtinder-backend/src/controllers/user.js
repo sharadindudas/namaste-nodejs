@@ -1,5 +1,5 @@
 const ConnectionRequestModel = require("../models/connectionRequest");
-const { AsyncHandler, ErrorHandler } = require("../utils/handlers");
+const { AsyncHandler } = require("../utils/handlers");
 
 const USER_SAFE_DATA = "name photoUrl age gender about skills";
 
@@ -33,10 +33,17 @@ const getAllConnections = AsyncHandler(async (req, res, next) => {
             { fromUserId: loggedInUser._id, status: "accepted" },
             { toUserId: loggedInUser._id, status: "accepted" }
         ]
-    }).populate("fromUserId", USER_SAFE_DATA);
+    })
+        .populate("fromUserId", USER_SAFE_DATA)
+        .populate("toUserId", USER_SAFE_DATA);
 
     // Get the connections data
-    const connectionsData = allConnections.map((connection) => connection.fromUserId);
+    const connectionsData = allConnections.map((connection) => {
+        if (String(connection.fromUserId._id) === String(loggedInUser._id)) {
+            return connection.toUserId;
+        }
+        return connection.fromUserId;
+    });
 
     // Return the response
     res.status(200).json({
