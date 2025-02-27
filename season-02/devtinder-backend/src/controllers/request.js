@@ -1,6 +1,6 @@
-const UserModel = require("../models/user");
-const ConnectionRequestModel = require("../models/connectionRequest");
 const { AsyncHandler, ErrorHandler } = require("../utils/handlers");
+const ConnectionRequestModel = require("../models/connectionRequest");
+const UserModel = require("../models/user");
 const { validateSendConnectionRequest, validateReviewConnectionRequest } = require("../utils/validations");
 
 // Send connection request
@@ -14,14 +14,14 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
     // Validation of data
     validateSendConnectionRequest(req.params);
 
-    // Check if the receiver (to user id) exists in the db or not
+    // Check if the receiver exists in the db or not
     const receiverExists = await UserModel.findById(toUserId);
     if (!receiverExists) {
         throw new ErrorHandler("User does not exists", 404);
     }
 
-    // Check if the sender and receiver is different or not
-    if (String(fromUserId) === String(toUserId)) {
+    // Check if the sender and receiver are both different user or not
+    if (fromUserId.toString() === toUserId.toString()) {
         throw new ErrorHandler("You cannot send connection request to yourself", 409);
     }
 
@@ -36,12 +36,12 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
         throw new ErrorHandler("Connection request already exists", 409);
     }
 
-    // Create a new connection request
+    // Create new connection request and store to db
     const newConnectionRequest = new ConnectionRequestModel({ fromUserId, toUserId, status });
     await newConnectionRequest.save();
 
-    // Populate the connection request data
-    const populatedConnectionRequest = await newConnectionRequest.populate([
+    // Populate the new connection request
+    const populatedNewConnectionRequest = await newConnectionRequest.populate([
         { path: "fromUserId", select: "name" },
         { path: "toUserId", select: "name" }
     ]);
@@ -50,7 +50,7 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
     res.status(201).json({
         success: true,
         message: `Connection request ${status === "interested" ? "sent" : status} successfully`,
-        data: populatedConnectionRequest
+        data: populatedNewConnectionRequest
     });
 });
 
@@ -60,7 +60,7 @@ const reviewConnectionRequest = AsyncHandler(async (req, res, next) => {
     const { status, requestId } = req.params;
 
     // Get logged in user data
-    const loggedInUser = req.user;
+    const toUserId = req.user._id;
 
     // Validation of data
     validateReviewConnectionRequest(req.params);
@@ -69,7 +69,7 @@ const reviewConnectionRequest = AsyncHandler(async (req, res, next) => {
     const connectionRequestExists = await ConnectionRequestModel.findOne({
         _id: requestId,
         status: "interested",
-        toUserId: loggedInUser._id
+        toUserId
     });
     if (!connectionRequestExists) {
         throw new ErrorHandler("Connection request does not exists", 404);

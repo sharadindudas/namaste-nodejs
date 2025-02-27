@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
-const { ErrorHandler } = require("../utils/handlers");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { ErrorHandler } = require("../utils/handlers");
 
 const userSchema = new mongoose.Schema(
     {
         name: {
             type: String,
-            required: [true, "Please provide a full name"],
+            required: [true, "Please provide a name"],
             min: [6, "Name must be at least 6 characters"],
             max: [100, "Name must not exceed 100 characters"],
             trim: true
@@ -16,9 +16,9 @@ const userSchema = new mongoose.Schema(
         email: {
             type: String,
             required: [true, "Please provide an email"],
-            trim: true,
             unique: [true, "User already exists"],
             lowercase: true,
+            trim: true,
             validate: function (value) {
                 if (!validator.isEmail(value)) {
                     throw new ErrorHandler("Please provide a valid email", 400);
@@ -30,25 +30,33 @@ const userSchema = new mongoose.Schema(
             required: [true, "Please provide a password"],
             trim: true,
             validate: function (value) {
-                if (!validator.isStrongPassword(value, { minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 })) {
+                if (
+                    !validator.isStrongPassword(value, {
+                        minLength: 8,
+                        minLowercase: 1,
+                        minUppercase: 1,
+                        minNumbers: 1,
+                        minSymbols: 1
+                    })
+                ) {
                     throw new ErrorHandler(
-                        "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number and one symbol",
+                        "Password must be at least 8 characters long and includes at least one uppercase character, one lowercase character, one number and one symbol",
                         400
                     );
                 }
             }
         },
+        gender: {
+            type: String,
+            enum: {
+                values: ["Male", "Female"],
+                message: "Please provide a valid gender type"
+            },
+            trim: true
+        },
         age: {
             type: Number,
             min: [18, "You must be at least 18 years old"]
-        },
-        gender: {
-            type: String,
-            trim: true,
-            enum: {
-                values: ["male", "female"],
-                message: "Please provide a valid gender type"
-            }
         },
         about: {
             type: String,
@@ -56,11 +64,12 @@ const userSchema = new mongoose.Schema(
             default: "This is the about section"
         },
         skills: {
-            type: [String]
+            type: [String],
+            trim: true
         },
         photoUrl: {
             type: String,
-            default: "https://api.dicebear.com/9.x/pixel-art/svg",
+            trim: true,
             validate: function (value) {
                 if (!validator.isURL(value)) {
                     throw new ErrorHandler("Please provide a valid photo url", 400);
@@ -73,7 +82,6 @@ const userSchema = new mongoose.Schema(
 
 // Hash the password
 userSchema.pre("save", async function (next) {
-    // If the password is changed
     if (this.isModified("password")) {
         this.password = await bcrypt.hash(this.password, 10);
     }
@@ -86,18 +94,17 @@ userSchema.methods.validatePassword = async function (password) {
 };
 
 // Generate jwt token
-userSchema.methods.generateJwt = function () {
-    const token = jwt.sign(
+userSchema.methods.generateJWT = function () {
+    return jwt.sign(
         {
             _id: this._id
         },
         process.env.JWT_SECRET,
         {
-            issuer: "Devtinder",
-            expiresIn: process.env.JWT_EXPIRY
+            issuer: "devtinder",
+            expiresIn: "7d"
         }
     );
-    return token;
 };
 
 const UserModel = mongoose.model("User", userSchema);

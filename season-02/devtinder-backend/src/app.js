@@ -1,6 +1,7 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const { errorMiddleware } = require("./middlewares/error");
+const { notfoundMiddleware } = require("./middlewares/notfound");
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
@@ -16,5 +17,6 @@ app.use("/request", requestRouter);
 app.use("/user", userRouter);
 
 app.use(errorMiddleware);
+app.use("*", notfoundMiddleware);
 
 module.exports = app;

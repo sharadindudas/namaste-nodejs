@@ -26,7 +26,7 @@ const Signup = AsyncHandler(async (req, res, next) => {
     // Return the response
     res.status(201).json({
         success: true,
-        message: "User registered successfully",
+        message: "Registered successfully",
         data: newUser
     });
 });
@@ -52,7 +52,7 @@ const Login = AsyncHandler(async (req, res, next) => {
     }
 
     // Generate jwt token
-    const token = userExists.generateJwt();
+    const token = userExists.generateJWT();
 
     // Remove sensitive data
     userExists.password = undefined;
@@ -73,12 +73,12 @@ const Login = AsyncHandler(async (req, res, next) => {
 });
 
 // Logout
-const Logout = AsyncHandler(async (req, res, next) => {
-    // Remove the cookies and return the response
+const Logout = async (req, res) => {
+    // Remove the cookie and return the response
     res.clearCookie("token").status(200).json({
         success: true,
         message: "Logged out successfully"
     });
-});
+};
 
 module.exports = { Signup, Login, Logout };

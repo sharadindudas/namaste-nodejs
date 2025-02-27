@@ -16,10 +16,9 @@ const connectionRequestSchema = new mongoose.Schema(
             type: String,
             enum: {
                 values: ["interested", "ignored", "accepted", "rejected"],
-                message: `Please provide a valid status type`
+                message: `{VALUE} is not a valid status type`
             },
-            trim: true,
-            required: [true, "Please provide the status"]
+            required: [true, "Please provide the connection status"]
         }
     },
     { timestamps: true }
@@ -28,5 +27,5 @@ const connectionRequestSchema = new mongoose.Schema(
 // Compound indexing
 connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
 
-const ConnectionRequestModel = mongoose.model("ConnectionRequest", connectionRequestSchema);
+const ConnectionRequestModel = mongoose.model("Connection Request", connectionRequestSchema);
 module.exports = ConnectionRequestModel;
