@@ -59,15 +59,10 @@ const validateLogin = (data) => {
 
 // Edit profile validation
 const validateEditProfile = (data) => {
-    const fieldsAllowedToEdit = ["age", "about", "skills"];
-
-    const isEditAllowed = Object.keys(data).every((field) => fieldsAllowedToEdit.includes(field));
-    if (!isEditAllowed) {
-        throw new ErrorHandler("Please provide the valid fields to update", 400);
-    }
-
-    if (data?.skills?.length > 5) {
-        throw new ErrorHandler("Skills cannot be more than 5", 400);
+    const allowedFieldsToEdit = ["age", "skills", "about"];
+    const isAllowed = Object.keys(data).every((field) => allowedFieldsToEdit.includes(field));
+    if (!isAllowed) {
+        throw new ErrorHandler("Please provide the valid fields to edit", 400);
     }
 };
 

@@ -8,7 +8,7 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
     // Get data from request params
     const { status, userId: toUserId } = req.params;
 
-    // Get logged in user data
+    // Get logged in user's id
     const fromUserId = req.user._id;
 
     // Validation of data
@@ -20,7 +20,7 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
         throw new ErrorHandler("User does not exists", 404);
     }
 
-    // Check if the sender and receiver are both different user or not
+    // Check if the sender and receiver are different user or not
     if (fromUserId.toString() === toUserId.toString()) {
         throw new ErrorHandler("You cannot send connection request to yourself", 409);
     }
@@ -36,7 +36,7 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
         throw new ErrorHandler("Connection request already exists", 409);
     }
 
-    // Create new connection request and store to db
+    // Create a new connection request
     const newConnectionRequest = new ConnectionRequestModel({ fromUserId, toUserId, status });
     await newConnectionRequest.save();
 
@@ -59,7 +59,7 @@ const reviewConnectionRequest = AsyncHandler(async (req, res, next) => {
     // Get data from request params
     const { status, requestId } = req.params;
 
-    // Get logged in user data
+    // Get logged in user's id
     const toUserId = req.user._id;
 
     // Validation of data
@@ -77,7 +77,7 @@ const reviewConnectionRequest = AsyncHandler(async (req, res, next) => {
 
     // Update the connection request status
     connectionRequestExists.status = status;
-    await connectionRequestExists.save({ validateBeforeSave: false });
+    await connectionRequestExists.save();
 
     // Populate the connection request
     const populatedConnectionRequest = await connectionRequestExists.populate([

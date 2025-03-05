@@ -29,17 +29,14 @@ const editProfile = AsyncHandler(async (req, res, next) => {
     // Validation of data
     validateEditProfile(bodyData);
 
-    // Update the fields and save it on db
+    // Update the data
     Object.keys(bodyData).forEach((field) => (loggedInUser[field] = bodyData[field]));
     await loggedInUser.save();
-
-    // Remove sensitive data
-    loggedInUser.password = undefined;
 
     // Return the response
     res.status(200).json({
         success: true,
-        message: "Updated profile successfully"
+        message: "Updated user profile successfully"
     });
 });
 
