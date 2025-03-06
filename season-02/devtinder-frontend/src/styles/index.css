@@ -1,4 +1,15 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-    themes: dark --default;
+@plugin "daisyui";
+
+@theme {
+    --font-inter: "Inter", sans-serif;
 }
+
+html {
+    @apply font-inter;
+}
+
+#root {
+    @apply flex flex-col min-h-screen;
+}
+

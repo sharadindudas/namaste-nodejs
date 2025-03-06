@@ -1,5 +1,6 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 const { errorMiddleware } = require("./middlewares/error");
 const { notfoundMiddleware } = require("./middlewares/notfound");
 const authRouter = require("./routes/auth");
@@ -10,6 +11,12 @@ const userRouter = require("./routes/user");
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use(
+    cors({
+        origin: "http://localhost:5173",
+        credentials: true
+    })
+);
 
 app.use("/auth", authRouter);
 app.use("/profile", profileRouter);

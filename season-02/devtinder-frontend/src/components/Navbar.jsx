@@ -2,12 +2,12 @@ import { Link } from "react-router";
 
 const Navbar = () => {
     return (
-        <div className="navbar bg-base-100 shadow-sm">
+        <header className="navbar bg-base-300 shadow-sm px-5">
             <div className="flex-1">
                 <Link
                     to="/"
-                    className="text-xl">
-                    Devtinder
+                    className="text-xl font-bold">
+                    DevTinder
                 </Link>
             </div>
 
@@ -25,22 +25,20 @@ const Navbar = () => {
                 </div>
                 <ul
                     tabIndex={0}
-                    className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-                    <li>
-                        <a className="justify-between">
-                            Profile
-                            <span className="badge">New</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a>Settings</a>
-                    </li>
-                    <li>
-                        <a>Logout</a>
-                    </li>
+                    className="menu menu-base dropdown-content bg-base-100 rounded-box z-1 w-40 shadow p-0 py-2">
+                    <p className="font-bold px-3">My Account</p>
+                    <div className="divider m-0 mt-1"></div>
+                    <div className="space-y-1">
+                        <li>
+                            <Link to="/profile">Profile</Link>
+                        </li>
+                        <li>
+                            <a>Logout</a>
+                        </li>
+                    </div>
                 </ul>
             </div>
-        </div>
+        </header>
     );
 };
 

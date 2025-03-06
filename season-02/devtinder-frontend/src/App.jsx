@@ -1,15 +1,19 @@
 import { Routes, Route } from "react-router";
-import Navbar from "./components/Navbar";
 import Body from "./components/Body";
 import Login from "./pages/Login";
+import Feed from "./pages/Feed";
 import Profile from "./pages/Profile";
 
-function App() {
+const App = () => {
     return (
         <Routes>
             <Route
                 path="/"
                 element={<Body />}>
+                <Route
+                    path="/"
+                    element={<Feed />}
+                />
                 <Route
                     path="/login"
                     element={<Login />}
@@ -21,7 +25,7 @@ function App() {
             </Route>
         </Routes>
     );
-}
+};
 
 export default App;
 
