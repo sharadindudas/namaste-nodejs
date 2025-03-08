@@ -1,5 +1,5 @@
-const UserModel = require("../models/user");
 const { AsyncHandler, ErrorHandler } = require("../utils/handlers");
+const UserModel = require("../models/user");
 const { validateSignup, validateLogin } = require("../utils/validations");
 
 // Signup
@@ -17,8 +17,11 @@ const Signup = AsyncHandler(async (req, res, next) => {
     }
 
     // Create a new user
-    const newUser = new UserModel({ name, email, password });
-    await newUser.save();
+    const newUser = await UserModel.create({
+        name,
+        email,
+        password
+    });
 
     // Remove sensitive data
     newUser.password = undefined;
@@ -46,13 +49,13 @@ const Login = AsyncHandler(async (req, res, next) => {
     }
 
     // Validation of password
-    const isValidPassword = await userExists.validatePassword(password);
-    if (!isValidPassword) {
+    const isValid = await userExists.validatePassword(password);
+    if (!isValid) {
         throw new ErrorHandler("Invalid Credentials", 401);
     }
 
     // Generate jwt token
-    const token = userExists.generateJWT();
+    const token = await userExists.generateJwt();
 
     // Remove sensitive data
     userExists.password = undefined;
@@ -73,8 +76,8 @@ const Login = AsyncHandler(async (req, res, next) => {
 });
 
 // Logout
-const Logout = async (req, res) => {
-    // Remove the cookie and return the response
+const Logout = (req, res) => {
+    // Clear the cookie and return the response
     res.clearCookie("token").status(200).json({
         success: true,
         message: "Logged out successfully"

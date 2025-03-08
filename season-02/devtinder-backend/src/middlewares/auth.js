@@ -2,13 +2,14 @@ const UserModel = require("../models/user");
 const { AsyncHandler, ErrorHandler } = require("../utils/handlers");
 const jwt = require("jsonwebtoken");
 
+// Auth middleware
 const userAuth = AsyncHandler(async (req, res, next) => {
-    // Get the token
+    // Get token from request cookies
     const { token } = req.cookies;
 
     // Validation of token
     if (!token) {
-        throw new ErrorHandler("Please Login to continue", 401);
+        throw new ErrorHandler("Please login to continue", 401);
     }
 
     // Decode the token

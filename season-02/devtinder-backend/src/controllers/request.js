@@ -3,6 +3,11 @@ const ConnectionRequestModel = require("../models/connectionRequest");
 const UserModel = require("../models/user");
 const { validateSendConnectionRequest, validateReviewConnectionRequest } = require("../utils/validations");
 
+const POPULATE_FIELDS = [
+    { path: "fromUserId", select: "name" },
+    { path: "toUserId", select: "name" }
+];
+
 // Send connection request
 const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
     // Get data from request params
@@ -20,12 +25,12 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
         throw new ErrorHandler("User does not exists", 404);
     }
 
-    // Check if the sender and receiver are different user or not
+    // Check if the sender and receiver is different user or not
     if (fromUserId.toString() === toUserId.toString()) {
         throw new ErrorHandler("You cannot send connection request to yourself", 409);
     }
 
-    // Check if the connection request already exists in the db or not
+    // Check if the connection request between them already exists in the db or not
     const connectionRequestExists = await ConnectionRequestModel.findOne({
         $or: [
             { fromUserId, toUserId },
@@ -37,14 +42,14 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
     }
 
     // Create a new connection request
-    const newConnectionRequest = new ConnectionRequestModel({ fromUserId, toUserId, status });
-    await newConnectionRequest.save();
+    const newConnectionRequest = await ConnectionRequestModel.create({
+        fromUserId,
+        toUserId,
+        status
+    });
 
     // Populate the new connection request
-    const populatedNewConnectionRequest = await newConnectionRequest.populate([
-        { path: "fromUserId", select: "name" },
-        { path: "toUserId", select: "name" }
-    ]);
+    const populatedNewConnectionRequest = await newConnectionRequest.populate(POPULATE_FIELDS);
 
     // Return the response
     res.status(201).json({
@@ -77,13 +82,10 @@ const reviewConnectionRequest = AsyncHandler(async (req, res, next) => {
 
     // Update the connection request status
     connectionRequestExists.status = status;
-    await connectionRequestExists.save();
+    await connectionRequestExists.save({ validateBeforeSave: false });
 
     // Populate the connection request
-    const populatedConnectionRequest = await connectionRequestExists.populate([
-        { path: "fromUserId", select: "name" },
-        { path: "toUserId", select: "name" }
-    ]);
+    const populatedConnectionRequest = await connectionRequestExists.populate(POPULATE_FIELDS);
 
     // Return the response
     res.status(200).json({

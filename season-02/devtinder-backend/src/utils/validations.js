@@ -1,5 +1,5 @@
-const { ErrorHandler } = require("./handlers");
 const validator = require("validator");
+const { ErrorHandler } = require("../utils/handlers");
 
 // Signup validation
 const validateSignup = (data) => {
@@ -57,12 +57,16 @@ const validateLogin = (data) => {
     }
 };
 
-// Edit profile validation
+// Edit user profile validation
 const validateEditProfile = (data) => {
-    const allowedFieldsToEdit = ["age", "skills", "about"];
+    const allowedFieldsToEdit = ["gender", "age", "skills", "about", "photoUrl"];
     const isAllowed = Object.keys(data).every((field) => allowedFieldsToEdit.includes(field));
     if (!isAllowed) {
         throw new ErrorHandler("Please provide the valid fields to edit", 400);
+    }
+
+    if (data?.skills?.length > 5) {
+        throw new ErrorHandler("Skills cannot exceed more than 5", 400);
     }
 };
 
@@ -85,9 +89,7 @@ const validateChangePassword = (data) => {
 // Send connection request validation
 const validateSendConnectionRequest = (data) => {
     const { status } = data;
-
     const allowedStatusValues = ["interested", "ignored"];
-
     if (!allowedStatusValues.includes(status)) {
         throw new ErrorHandler(`Invalid status type: "${status}"`, 400);
     }
@@ -96,18 +98,10 @@ const validateSendConnectionRequest = (data) => {
 // Review connection request validation
 const validateReviewConnectionRequest = (data) => {
     const { status } = data;
-
     const allowedStatusValues = ["accepted", "rejected"];
     if (!allowedStatusValues.includes(status)) {
         throw new ErrorHandler(`Invalid status type: "${status}"`, 400);
     }
 };
 
-module.exports = {
-    validateSignup,
-    validateLogin,
-    validateEditProfile,
-    validateChangePassword,
-    validateSendConnectionRequest,
-    validateReviewConnectionRequest
-};
+module.exports = { validateSignup, validateLogin, validateEditProfile, validateChangePassword, validateSendConnectionRequest, validateReviewConnectionRequest };

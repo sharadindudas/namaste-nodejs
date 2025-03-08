@@ -1,27 +1,25 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const { ErrorHandler } = require("../utils/handlers");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { ErrorHandler } = require("../utils/handlers");
 
 const userSchema = new mongoose.Schema(
     {
         name: {
             type: String,
             required: [true, "Please provide a name"],
-            min: [6, "Name must be at least 6 characters"],
-            max: [100, "Name must not exceed 100 characters"],
             trim: true
         },
         email: {
             type: String,
-            required: [true, "Please provide an email"],
-            unique: [true, "User already exists"],
-            lowercase: true,
+            required: [true, "Please provide an email address"],
             trim: true,
+            lowercase: true,
+            unique: true,
             validate: function (value) {
                 if (!validator.isEmail(value)) {
-                    throw new ErrorHandler("Please provide a valid email", 400);
+                    throw new ErrorHandler("Please provide a valid email address", 400);
                 }
             }
         },
@@ -30,15 +28,7 @@ const userSchema = new mongoose.Schema(
             required: [true, "Please provide a password"],
             trim: true,
             validate: function (value) {
-                if (
-                    !validator.isStrongPassword(value, {
-                        minLength: 8,
-                        minLowercase: 1,
-                        minUppercase: 1,
-                        minNumbers: 1,
-                        minSymbols: 1
-                    })
-                ) {
+                if (!validator.isStrongPassword(value, { minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 })) {
                     throw new ErrorHandler(
                         "Password must be at least 8 characters long and includes at least one uppercase character, one lowercase character, one number and one symbol",
                         400
@@ -49,8 +39,8 @@ const userSchema = new mongoose.Schema(
         gender: {
             type: String,
             enum: {
-                values: ["Male", "Female"],
-                message: "Please provide a valid gender type"
+                values: ["male", "female"],
+                message: `{VALUE} is not a valid gender type`
             },
             trim: true
         },
@@ -60,8 +50,7 @@ const userSchema = new mongoose.Schema(
         },
         about: {
             type: String,
-            trim: true,
-            default: "This is the about section"
+            trim: true
         },
         skills: {
             type: [String],
@@ -69,6 +58,7 @@ const userSchema = new mongoose.Schema(
         },
         photoUrl: {
             type: String,
+            default: "https://api.dicebear.com/9.x/pixel-art/svg",
             trim: true,
             validate: function (value) {
                 if (!validator.isURL(value)) {
@@ -82,29 +72,30 @@ const userSchema = new mongoose.Schema(
 
 // Hash the password
 userSchema.pre("save", async function (next) {
+    // If the password is changed
     if (this.isModified("password")) {
         this.password = await bcrypt.hash(this.password, 10);
     }
     next();
 });
 
-// Validation of password
+// Validate the password
 userSchema.methods.validatePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
 
 // Generate jwt token
-userSchema.methods.generateJWT = function () {
-    return jwt.sign(
+userSchema.methods.generateJwt = async function (password) {
+    const token = jwt.sign(
         {
             _id: this._id
         },
         process.env.JWT_SECRET,
         {
-            issuer: "devtinder",
             expiresIn: "7d"
         }
     );
+    return token;
 };
 
 const UserModel = mongoose.model("User", userSchema);
