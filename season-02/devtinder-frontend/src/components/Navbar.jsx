@@ -1,8 +1,33 @@
-import { useSelector } from "react-redux";
-import { Link } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router";
+import toast from "react-hot-toast";
+import { axiosInstance } from "../utils/axiosInstance";
+import { AxiosError } from "axios";
+import { removeUser } from "../store/slices/userSlice";
 
 const Navbar = () => {
     const user = useSelector((store) => store.user);
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        const toastId = toast.loading("Loading...");
+        try {
+            const response = await axiosInstance.post("/auth/logout");
+            if (response.data.success) {
+                dispatch(removeUser());
+                toast.success(response.data.message);
+                navigate("/login");
+            }
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                toast.error(err.response.data.message);
+                console.error(err.response.data.message);
+            }
+        } finally {
+            toast.dismiss(toastId);
+        }
+    };
 
     return (
         <header className="navbar bg-base-300 shadow-sm px-5">
@@ -41,7 +66,7 @@ const Navbar = () => {
                                     <Link to="/profile">Profile</Link>
                                 </li>
                                 <li>
-                                    <a>Logout</a>
+                                    <a onClick={handleLogout}>Logout</a>
                                 </li>
                             </div>
                         </ul>

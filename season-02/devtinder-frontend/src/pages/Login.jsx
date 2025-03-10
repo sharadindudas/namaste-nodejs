@@ -24,8 +24,8 @@ const Login = () => {
         resolver: yupResolver(LoginSchema),
         mode: "onChange",
         defaultValues: {
-            email: "remo@gmail.com",
-            password: "Password@123"
+            email: "",
+            password: ""
         }
     });
     const [showPassword, setShowPassword] = useState("");
@@ -53,12 +53,12 @@ const Login = () => {
     return (
         <div className="flex flex-col justify-center items-center my-14">
             <div className="card bg-base-300 w-96 shadow-xl">
-                <h2 className="card-title justify-center text-xl mt-8">Login to your Account</h2>
+                <h2 className="card-title justify-center text-2xl mt-8">Login to your Account</h2>
                 <form
                     noValidate
                     onSubmit={handleSubmit(onSubmit)}
                     className="card-body">
-                    <div className="space-y-5 my-5">
+                    <div className="space-y-5 my-4">
                         <div className="relative">
                             <label className="floating-label">
                                 <span className={`${errors?.email && "text-red-500"}`}>Email Address</span>
@@ -95,6 +95,7 @@ const Login = () => {
                             <input
                                 type="checkbox"
                                 className="checkbox rounded-sm w-5 h-5"
+                                defaultChecked
                             />
                             Remember me
                         </label>
@@ -107,7 +108,12 @@ const Login = () => {
 
                     <div className="flex items-center flex-col gap-3">
                         <p className="m-auto cursor-pointer font-light">
-                            Not Registered Yet ? <span className="font-semibold">Signup</span>
+                            Not Registered Yet ?{" "}
+                            <Link
+                                to="/signup"
+                                className="font-semibold">
+                                Sign Up
+                            </Link>
                         </p>
                         <button className=" btn btn-primary w-full h-11">Login</button>
                     </div>
