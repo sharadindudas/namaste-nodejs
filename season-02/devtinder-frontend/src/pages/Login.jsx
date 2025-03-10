@@ -1,15 +1,20 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { LoginSchema } from "../schemas/authSchema";
 import ToolTipMessage from "../components/ToolTipMessage";
-import axios, { AxiosError } from "axios";
 import toast from "react-hot-toast";
+import { AxiosError } from "axios";
 import { axiosInstance } from "../utils/axiosInstance";
+import { useDispatch } from "react-redux";
+import { addUser } from "../store/slices/userSlice";
 
 const Login = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const {
         register,
         handleSubmit,
@@ -17,7 +22,11 @@ const Login = () => {
         reset
     } = useForm({
         resolver: yupResolver(LoginSchema),
-        mode: "onChange"
+        mode: "onChange",
+        defaultValues: {
+            email: "remo@gmail.com",
+            password: "Password@123"
+        }
     });
     const [showPassword, setShowPassword] = useState("");
 
@@ -27,16 +36,17 @@ const Login = () => {
             const response = await axiosInstance.post("/auth/login", data);
             if (response.data.success) {
                 toast.success(response.data.message);
-                console.log(response.data);
+                dispatch(addUser(response.data.data));
+                navigate("/");
+                reset();
             }
         } catch (err) {
             if (err instanceof AxiosError) {
-                console.error(err.response.data.message);
                 toast.error(err.response.data.message);
+                console.error(err.response.data.message);
             }
         } finally {
             toast.dismiss(toastId);
-            reset();
         }
     };
 

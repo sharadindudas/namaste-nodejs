@@ -61,6 +61,12 @@ const getAllConnections = AsyncHandler(async (req, res, next) => {
 
 // Get users in feed
 const getUsersInFeed = AsyncHandler(async (req, res, next) => {
+    // Get data from request query
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
+    limit = limit > 50 ? 50 : limit;
+    let skip = (page - 1) * limit;
+
     // Get logged in user data
     const loggedInUser = req.user;
 
@@ -79,10 +85,12 @@ const getUsersInFeed = AsyncHandler(async (req, res, next) => {
         usersToHide.add(connection.toUserId._id.toString());
     });
 
-    // Find all the users to be shown on feed
+    // Find all the users to be shown on feed with pagination
     const usersToBeShownOnFeed = await UserModel.find({
         _id: { $nin: Array.from(usersToHide) }
-    });
+    })
+        .skip(skip)
+        .limit(limit);
 
     // Return the response
     res.status(200).json({
