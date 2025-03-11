@@ -1,5 +1,5 @@
-import { useSelector } from "react-redux";
 import { Navigate } from "react-router";
+import { useSelector } from "react-redux";
 
 const PublicRoute = ({ children }) => {
     const user = useSelector((store) => store.user);
