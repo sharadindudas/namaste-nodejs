@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import { axiosInstance } from "../utils/axiosInstance";
 import { AxiosError } from "axios";
 import { removeUser } from "../store/slices/userSlice";
+import { removeFeed } from "../store/slices/feedSlice";
 
 const Navbar = () => {
     const user = useSelector((store) => store.user);
@@ -16,6 +17,7 @@ const Navbar = () => {
             const response = await axiosInstance.post("/auth/logout");
             if (response.data.success) {
                 dispatch(removeUser());
+                dispatch(removeFeed());
                 toast.success(response.data.message);
                 navigate("/login");
             }
@@ -52,7 +54,7 @@ const Navbar = () => {
                             <div className="w-10 rounded-full">
                                 <img
                                     alt="Tailwind CSS Navbar component"
-                                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                                    src={user.photoUrl}
                                 />
                             </div>
                         </div>

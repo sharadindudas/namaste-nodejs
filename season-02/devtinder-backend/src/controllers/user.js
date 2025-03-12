@@ -72,11 +72,8 @@ const getUsersInFeed = AsyncHandler(async (req, res, next) => {
 
     // Get all the connections of the user
     const allConnections = await ConnectionRequestModel.find({
-        $or: [
-            { fromUserId: loggedInUser._id, status: "accepted" },
-            { toUserId: loggedInUser._id, status: "accepted" }
-        ]
-    });
+        $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }]
+    }).select("fromUserId toUserId");
 
     // Filter out the unique users
     const usersToHide = new Set();
@@ -87,8 +84,9 @@ const getUsersInFeed = AsyncHandler(async (req, res, next) => {
 
     // Find all the users to be shown on feed with pagination
     const usersToBeShownOnFeed = await UserModel.find({
-        _id: { $nin: Array.from(usersToHide) }
+        $and: [{ _id: { $nin: Array.from(usersToHide) } }, { _id: { $ne: loggedInUser._id } }]
     })
+        .select(USER_SAFE_DATA)
         .skip(skip)
         .limit(limit);
 

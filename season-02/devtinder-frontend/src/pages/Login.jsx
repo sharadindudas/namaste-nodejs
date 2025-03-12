@@ -12,13 +12,14 @@ import { useDispatch } from "react-redux";
 import { addUser } from "../store/slices/userSlice";
 
 const Login = () => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isValid },
         reset
     } = useForm({
         resolver: yupResolver(LoginSchema),
@@ -31,7 +32,9 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState("");
 
     const onSubmit = async (data) => {
+        setIsSubmitting(true);
         const toastId = toast.loading("Loading...");
+
         try {
             const response = await axiosInstance.post("/auth/login", data);
             if (response.data.success) {
@@ -43,9 +46,9 @@ const Login = () => {
         } catch (err) {
             if (err instanceof AxiosError) {
                 toast.error(err.response.data.message);
-                console.error(err.response.data.message);
             }
         } finally {
+            setIsSubmitting(false);
             toast.dismiss(toastId);
         }
     };
@@ -115,7 +118,12 @@ const Login = () => {
                                 Sign Up
                             </Link>
                         </p>
-                        <button className=" btn btn-primary w-full h-11">Login</button>
+                        <button
+                            type="submit"
+                            disabled={!isValid || isSubmitting}
+                            className=" btn btn-primary w-full h-11">
+                            Login
+                        </button>
                     </div>
                 </form>
             </div>

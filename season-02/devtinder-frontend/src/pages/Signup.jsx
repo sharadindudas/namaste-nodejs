@@ -8,16 +8,16 @@ import ToolTipMessage from "../components/ToolTipMessage";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import { axiosInstance } from "../utils/axiosInstance";
-import { useDispatch } from "react-redux";
 
 const Signup = () => {
-    const dispatch = useDispatch();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showPassword, setShowPassword] = useState("");
     const navigate = useNavigate();
 
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isValid },
         reset
     } = useForm({
         resolver: yupResolver(SignupSchema),
@@ -28,10 +28,11 @@ const Signup = () => {
             password: ""
         }
     });
-    const [showPassword, setShowPassword] = useState("");
 
     const onSubmit = async (data) => {
+        setIsSubmitting(true);
         const toastId = toast.loading("Loading...");
+
         try {
             const response = await axiosInstance.post("/auth/signup", data);
             if (response.data.success) {
@@ -44,6 +45,7 @@ const Signup = () => {
                 toast.error(err.response.data.message);
             }
         } finally {
+            setIsSubmitting(false);
             toast.dismiss(toastId);
         }
     };
@@ -56,7 +58,7 @@ const Signup = () => {
                     noValidate
                     onSubmit={handleSubmit(onSubmit)}
                     className="card-body">
-                    <div className="space-y-5 mt-4">
+                    <div className="space-y-5">
                         <div className="relative">
                             <label className="floating-label">
                                 <span className={`${errors?.name && "text-red-500"}`}>Name</span>
@@ -99,7 +101,6 @@ const Signup = () => {
                             {errors?.password && <ToolTipMessage message={errors.password.message} />}
                         </div>
                     </div>
-
                     <div className="flex items-center flex-col gap-3 my-4">
                         <p className="m-auto cursor-pointer font-light">
                             Already Registered ?{" "}
@@ -109,7 +110,12 @@ const Signup = () => {
                                 Log In
                             </Link>
                         </p>
-                        <button className=" btn btn-primary w-full h-11">Signup</button>
+                        <button
+                            type="submit"
+                            disabled={!isValid || isSubmitting}
+                            className="btn btn-primary w-full h-11">
+                            Signup
+                        </button>
                     </div>
                 </form>
             </div>
