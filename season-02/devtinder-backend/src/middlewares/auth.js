@@ -2,9 +2,8 @@ const UserModel = require("../models/user");
 const { AsyncHandler, ErrorHandler } = require("../utils/handlers");
 const jwt = require("jsonwebtoken");
 
-// Auth middleware
 const userAuth = AsyncHandler(async (req, res, next) => {
-    // Get token from request cookies
+    // Get the token
     const { token } = req.cookies;
 
     // Validation of token
@@ -13,15 +12,15 @@ const userAuth = AsyncHandler(async (req, res, next) => {
     }
 
     // Decode the token
-    const decodedPayload = jwt.verify(token, process.env.JWT_SECRET);
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Get user details
-    const user = await UserModel.findById(decodedPayload._id);
+    // Get the user details
+    const user = await UserModel.findById(decodedToken._id);
     if (!user) {
         throw new ErrorHandler("User does not exists", 404);
     }
 
-    // Pass the user data inside request object
+    // Pass the user inside request object
     req.user = user;
 
     // Move to next handler function

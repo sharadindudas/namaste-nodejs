@@ -13,7 +13,7 @@ const Signup = AsyncHandler(async (req, res, next) => {
     // Check if the user already exists in the db or not
     const userExists = await UserModel.findOne({ email });
     if (userExists) {
-        throw new ErrorHandler("User already exists", 409);
+        throw new ErrorHandler("User already exists, Please Login", 409);
     }
 
     // Create a new user
@@ -48,14 +48,14 @@ const Login = AsyncHandler(async (req, res, next) => {
         throw new ErrorHandler("User does not exists", 404);
     }
 
-    // Validation of password
-    const isValid = await userExists.validatePassword(password);
-    if (!isValid) {
+    // Validate the password
+    const isValidPassword = await userExists.validatePassword(password);
+    if (!isValidPassword) {
         throw new ErrorHandler("Invalid Credentials", 401);
     }
 
     // Generate jwt token
-    const token = await userExists.generateJwt();
+    const token = userExists.generateJwt();
 
     // Remove sensitive data
     userExists.password = undefined;
@@ -77,7 +77,7 @@ const Login = AsyncHandler(async (req, res, next) => {
 
 // Logout
 const Logout = (req, res) => {
-    // Clear the cookie and return the response
+    // Remove the cookie and return the response
     res.clearCookie("token").status(200).json({
         success: true,
         message: "Logged out successfully"

@@ -1,8 +1,8 @@
 const errorMiddleware = (err, req, res, next) => {
-    // Log all errors
+    // Log all the errors
     console.error(err);
 
-    // Set default error values
+    // Set all the default values for error
     err.message ||= "Internal Server Error Occurred";
     err.statusCode ||= 500;
 
@@ -13,4 +13,4 @@ const errorMiddleware = (err, req, res, next) => {
     });
 };
 
-module.exports =  errorMiddleware ;
+module.exports = errorMiddleware;

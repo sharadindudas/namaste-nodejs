@@ -10,7 +10,7 @@ const validateSignup = (data) => {
     }
 
     if (!validator.isEmail(email)) {
-        throw new ErrorHandler("Please provide a valid email", 400);
+        throw new ErrorHandler("Please provide a valid email address", 400);
     }
 
     if (
@@ -38,7 +38,7 @@ const validateLogin = (data) => {
     }
 
     if (!validator.isEmail(email)) {
-        throw new ErrorHandler("Please provide a valid email", 400);
+        throw new ErrorHandler("Please provide a valid email address", 400);
     }
 
     if (
@@ -57,16 +57,15 @@ const validateLogin = (data) => {
     }
 };
 
-// Edit user profile validation
+// Edit profile validation
 const validateEditProfile = (data) => {
-    const allowedFieldsToEdit = ["gender", "age", "skills", "about", "photoUrl"];
+    const allowedFieldsToEdit = ["age", "gender", "about", "skills", "photoUrl"];
     const isAllowed = Object.keys(data).every((field) => allowedFieldsToEdit.includes(field));
     if (!isAllowed) {
         throw new ErrorHandler("Please provide the valid fields to edit", 400);
     }
-
     if (data?.skills?.length > 5) {
-        throw new ErrorHandler("Skills cannot exceed more than 5", 400);
+        throw new ErrorHandler("Skills must not exceed more than 5", 400);
     }
 };
 
@@ -104,4 +103,11 @@ const validateReviewConnectionRequest = (data) => {
     }
 };
 
-module.exports = { validateSignup, validateLogin, validateEditProfile, validateChangePassword, validateSendConnectionRequest, validateReviewConnectionRequest };
+module.exports = {
+    validateSignup,
+    validateLogin,
+    validateEditProfile,
+    validateChangePassword,
+    validateSendConnectionRequest,
+    validateReviewConnectionRequest
+};

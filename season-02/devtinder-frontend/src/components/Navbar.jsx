@@ -16,9 +16,9 @@ const Navbar = () => {
         try {
             const response = await axiosInstance.post("/auth/logout");
             if (response.data.success) {
+                toast.success(response.data.message);
                 dispatch(removeUser());
                 dispatch(removeFeed());
-                toast.success(response.data.message);
                 navigate("/login");
             }
         } catch (err) {

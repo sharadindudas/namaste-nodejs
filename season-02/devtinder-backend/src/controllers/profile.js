@@ -1,9 +1,9 @@
 const { AsyncHandler, ErrorHandler } = require("../utils/handlers");
 const { validateEditProfile, validateChangePassword } = require("../utils/validations");
 
-// Get user profile
-const getUserProfile = AsyncHandler(async (req, res, next) => {
-    // Get logged in user data
+// View profile
+const viewProfile = AsyncHandler(async (req, res, next) => {
+    // Get logged in user's data
     const loggedInUser = req.user;
 
     // Remove sensitive data
@@ -17,18 +17,18 @@ const getUserProfile = AsyncHandler(async (req, res, next) => {
     });
 });
 
-// Edit user profile
-const editUserProfile = AsyncHandler(async (req, res, next) => {
-    // Get logged in user data
-    const loggedInUser = req.user;
-
+// Edit profile
+const editProfile = AsyncHandler(async (req, res, next) => {
     // Get data from request body
     const bodyData = req.body;
 
     // Validation of data
     validateEditProfile(bodyData);
 
-    // Update the user details and save it to db
+    // Get logged in user's data
+    const loggedInUser = req.user;
+
+    // Update the user
     Object.keys(bodyData).forEach((field) => (loggedInUser[field] = bodyData[field]));
     await loggedInUser.save();
 
@@ -48,19 +48,19 @@ const changePassword = AsyncHandler(async (req, res, next) => {
     // Get data from request body
     const { oldPassword, newPassword } = req.body;
 
-    // Get logged in user data
-    const loggedInUser = req.user;
-
     // Validation of data
     validateChangePassword(req.body);
 
-    // Validation of password
-    const isValid = await loggedInUser.validatePassword(oldPassword);
-    if (!isValid) {
+    // Get logged in user's data
+    const loggedInUser = req.user;
+
+    // Validate the password
+    const isValidPassword = await loggedInUser.validatePassword(oldPassword);
+    if (!isValidPassword) {
         throw new ErrorHandler("Invalid Credentials", 401);
     }
 
-    // Update the user with new password
+    // Update the password of the user
     loggedInUser.password = newPassword;
     await loggedInUser.save();
 
@@ -71,4 +71,4 @@ const changePassword = AsyncHandler(async (req, res, next) => {
     });
 });
 
-module.exports = { getUserProfile, editUserProfile, changePassword };
+module.exports = { viewProfile, editProfile, changePassword };

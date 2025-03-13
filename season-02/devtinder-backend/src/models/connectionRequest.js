@@ -16,16 +16,18 @@ const connectionRequestSchema = new mongoose.Schema(
         },
         status: {
             type: String,
+            trim: true,
+            lowercase: true,
             enum: {
-                values: ["interested", "ignored", "accepted", "ignored"],
-                message: `"{VALUE}" is incorrect status type`
+                values: ["ignored", "interested", "accepted", "rejected"],
+                message: `{VALUE} is not a valid status type`
             }
         }
     },
-    { timestamps: true }
+    { timestamps: true, versionKey: false }
 );
 
-// Compount indexing
+// Compound indexing
 connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
 
 const ConnectionRequestModel = mongoose.model("Connection Request", connectionRequestSchema);

@@ -1,6 +1,7 @@
 import * as yup from "yup";
 import validator from "validator";
 
+// Edit profile schema
 export const EditProfileSchema = yup.object({
     name: yup.string().min(6, "Name must be at least 6 characters").max(50, "Name must not exceed 50 characters").trim(),
     email: yup
