@@ -5,6 +5,7 @@ import { axiosInstance } from "../utils/axiosInstance";
 import { AxiosError } from "axios";
 import { removeUser } from "../store/slices/userSlice";
 import { removeFeed } from "../store/slices/feedSlice";
+import { BsFillPeopleFill } from "react-icons/bs";
 
 const Navbar = () => {
     const user = useSelector((store) => store.user);
@@ -42,10 +43,17 @@ const Navbar = () => {
             </div>
 
             {user ? (
-                <div className="flex items-center gap-5 text-sm">
-                    <p>
-                        Welcome, <b>{user?.name}</b>
-                    </p>
+                <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-5">
+                        <p>
+                            Welcome, <b>{user?.name}</b>
+                        </p>
+                        <Link
+                            to="/connections"
+                            className="text-xl btn btn-dash p-0 w-10 rounded-full">
+                            <BsFillPeopleFill />
+                        </Link>
+                    </div>
                     <div className="dropdown dropdown-end">
                         <div
                             tabIndex={0}
@@ -75,9 +83,12 @@ const Navbar = () => {
                     </div>
                 </div>
             ) : (
-                <div>
+                <div className="space-x-4">
                     <button className="btn btn-primary">
                         <Link to="/login">Log In</Link>
+                    </button>
+                    <button className="btn btn-info">
+                        <Link to="/signup">Sign Up</Link>
                     </button>
                 </div>
             )}

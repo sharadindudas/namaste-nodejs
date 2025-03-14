@@ -1,11 +1,12 @@
 import { Routes, Route } from "react-router";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
 import Login from "./pages/Login";
 import Feed from "./pages/Feed";
 import Profile from "./pages/Profile";
 import Signup from "./pages/Signup";
 import Body from "./components/Body";
-import ProtectedRoute from "./components/ProtectedRoute";
-import PublicRoute from "./components/PublicRoute";
+import Connections from "./pages/Connections";
 
 const App = () => {
     return (
@@ -29,7 +30,14 @@ const App = () => {
                         </ProtectedRoute>
                     }
                 />
-
+                <Route
+                    path="/connections"
+                    element={
+                        <ProtectedRoute>
+                            <Connections />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route
                     path="/login"
                     element={
