@@ -5,6 +5,7 @@ import { axiosInstance } from "../utils/axiosInstance";
 import { AxiosError } from "axios";
 import { removeUser } from "../store/slices/userSlice";
 import { removeFeed } from "../store/slices/feedSlice";
+import { removeConnections } from "../store/slices/connectionSlice";
 import { BsFillPeopleFill } from "react-icons/bs";
 
 const Navbar = () => {
@@ -20,6 +21,7 @@ const Navbar = () => {
                 toast.success(response.data.message);
                 dispatch(removeUser());
                 dispatch(removeFeed());
+                dispatch(removeConnections());
                 navigate("/login");
             }
         } catch (err) {
