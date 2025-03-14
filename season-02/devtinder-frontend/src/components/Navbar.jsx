@@ -1,12 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router";
 import toast from "react-hot-toast";
+import { BsFillPeopleFill } from "react-icons/bs";
 import { axiosInstance } from "../utils/axiosInstance";
-import { AxiosError } from "axios";
 import { removeUser } from "../store/slices/userSlice";
 import { removeFeed } from "../store/slices/feedSlice";
 import { removeConnections } from "../store/slices/connectionSlice";
-import { BsFillPeopleFill } from "react-icons/bs";
+import { removeRequests } from "../store/slices/requestSlice";
 
 const Navbar = () => {
     const user = useSelector((store) => store.user);
@@ -22,13 +22,11 @@ const Navbar = () => {
                 dispatch(removeUser());
                 dispatch(removeFeed());
                 dispatch(removeConnections());
+                dispatch(removeRequests());
                 navigate("/login");
             }
         } catch (err) {
-            if (err instanceof AxiosError) {
-                toast.error(err.response.data.message);
-                console.error(err.response.data.message);
-            }
+            toast.error(err.message);
         } finally {
             toast.dismiss(toastId);
         }
@@ -51,7 +49,7 @@ const Navbar = () => {
                             Welcome, <b>{user?.name}</b>
                         </p>
                         <Link
-                            to="/connections"
+                            to="/requests"
                             className="text-xl btn btn-dash p-0 w-10 rounded-full">
                             <BsFillPeopleFill />
                         </Link>
@@ -76,6 +74,9 @@ const Navbar = () => {
                             <div className="space-y-1">
                                 <li>
                                     <Link to="/profile">Profile</Link>
+                                </li>
+                                <li>
+                                    <Link to="/connections">Connections</Link>
                                 </li>
                                 <li>
                                     <a onClick={handleLogout}>Logout</a>

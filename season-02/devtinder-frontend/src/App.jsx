@@ -7,6 +7,7 @@ import Profile from "./pages/Profile";
 import Signup from "./pages/Signup";
 import Body from "./components/Body";
 import Connections from "./pages/Connections";
+import Requests from "./pages/Requests";
 
 const App = () => {
     return (
@@ -35,6 +36,14 @@ const App = () => {
                     element={
                         <ProtectedRoute>
                             <Connections />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/requests"
+                    element={
+                        <ProtectedRoute>
+                            <Requests />
                         </ProtectedRoute>
                     }
                 />

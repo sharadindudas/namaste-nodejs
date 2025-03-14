@@ -1,10 +1,10 @@
 const ConnectionCard = ({ connection }) => {
     return (
-        <div className="flex items-center gap-5 bg-base-300 p-4 rounded-lg">
+        <div className="flex items-center gap-5 bg-base-300 p-5 rounded-lg">
             <div className="w-16 h-16 rounded-full">
                 <img
                     src={connection.photoUrl}
-                    alt="connection_photo"
+                    alt="photo"
                     className="w-full h-full rounded-full"
                 />
             </div>

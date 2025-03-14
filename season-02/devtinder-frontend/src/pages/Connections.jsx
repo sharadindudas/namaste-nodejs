@@ -8,7 +8,6 @@ import ConnectionCard from "../components/ConnectionCard";
 const Connections = () => {
     const dispatch = useDispatch();
     const connections = useSelector((store) => store.connections);
-    console.log(connections);
 
     const fetchAllConnections = async () => {
         if (connections) return;
@@ -28,12 +27,12 @@ const Connections = () => {
         fetchAllConnections();
     }, []);
 
-    if (connections?.length === 0) return <h2 className="text-3xl font-bold">No Connections Found!</h2>;
+    if (!connections || connections?.length === 0) return <h2 className="text-3xl font-bold text-center my-10">No Connections Found!</h2>;
 
     return (
-        <div className="text-center my-10 max-w-2xl w-full mx-auto">
-            <h2 className="text-3xl font-bold mb-6">My Connections</h2>
-            <div className="space-y-6">
+        <div className="text-center my-8 max-w-3xl w-full mx-auto">
+            <h2 className="text-3xl font-bold">My Connections</h2>
+            <div className="space-y-6 mt-8">
                 {connections?.map((connection) => (
                     <ConnectionCard
                         key={connection._id}
