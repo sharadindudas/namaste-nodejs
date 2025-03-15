@@ -9,12 +9,10 @@ import { addUser } from "../store/slices/userSlice";
 import Loader from "./Loader";
 
 const Body = () => {
-    const user = useSelector((store) => store.user);
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(true);
 
     const fetchUser = async () => {
-        if (user) return;
         try {
             setIsLoading(true);
             const response = await axiosInstance.get("/profile/view");
