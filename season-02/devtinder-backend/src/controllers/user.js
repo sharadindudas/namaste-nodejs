@@ -17,13 +17,11 @@ const receivedConnectionRequests = AsyncHandler(async (req, res, next) => {
         .select("fromUserId")
         .populate({ path: "fromUserId", select: USER_SAFE_DATA });
 
-    const allConnectionsReceived = connectionRequestsReceived.map((connection) => connection.fromUserId);
-
     // Return the response
     res.status(200).json({
         success: true,
         message: "Fetched connection requests received successfully",
-        data: allConnectionsReceived
+        data: connectionRequestsReceived
     });
 });
 

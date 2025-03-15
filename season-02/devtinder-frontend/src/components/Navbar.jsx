@@ -1,12 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router";
 import toast from "react-hot-toast";
-import { BsFillPeopleFill } from "react-icons/bs";
 import { axiosInstance } from "../utils/axiosInstance";
-import { removeUser } from "../store/slices/userSlice";
-import { removeFeed } from "../store/slices/feedSlice";
-import { removeConnections } from "../store/slices/connectionSlice";
-import { removeRequests } from "../store/slices/requestSlice";
+import { clearUser } from "../store/slices/userSlice";
+import { clearFeed } from "../store/slices/feedSlice";
+import { clearConnections } from "../store/slices/connectionSlice";
+import { clearRequests } from "../store/slices/requestSlice";
 
 const Navbar = () => {
     const user = useSelector((store) => store.user);
@@ -19,10 +18,10 @@ const Navbar = () => {
             const response = await axiosInstance.post("/auth/logout");
             if (response.data.success) {
                 toast.success(response.data.message);
-                dispatch(removeUser());
-                dispatch(removeFeed());
-                dispatch(removeConnections());
-                dispatch(removeRequests());
+                dispatch(clearUser());
+                dispatch(clearFeed());
+                dispatch(clearConnections());
+                dispatch(clearRequests());
                 navigate("/login");
             }
         } catch (err) {
@@ -44,16 +43,10 @@ const Navbar = () => {
 
             {user ? (
                 <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-5">
-                        <p>
-                            Welcome, <b>{user?.name}</b>
-                        </p>
-                        <Link
-                            to="/requests"
-                            className="text-xl btn btn-dash p-0 w-10 rounded-full">
-                            <BsFillPeopleFill />
-                        </Link>
-                    </div>
+                    <p>
+                        Welcome, <b>{user?.name}</b>
+                    </p>
+
                     <div className="dropdown dropdown-end">
                         <div
                             tabIndex={0}
@@ -74,6 +67,9 @@ const Navbar = () => {
                             <div className="space-y-1">
                                 <li>
                                     <Link to="/profile">Profile</Link>
+                                </li>
+                                <li>
+                                    <Link to="/requests">Requests</Link>
                                 </li>
                                 <li>
                                     <Link to="/connections">Connections</Link>

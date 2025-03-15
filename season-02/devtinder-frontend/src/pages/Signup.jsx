@@ -8,6 +8,7 @@ import ToolTipMessage from "../components/ToolTipMessage";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import { axiosInstance } from "../utils/axiosInstance";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const Signup = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -114,7 +115,14 @@ const Signup = () => {
                             type="submit"
                             disabled={!isValid || isSubmitting}
                             className="btn btn-primary w-full h-11">
-                            Signup
+                            {isSubmitting ? (
+                                <div className="flex items-center gap-2">
+                                    <AiOutlineLoading3Quarters className="animate animate-spin text-lg" />
+                                    Processing...
+                                </div>
+                            ) : (
+                                "Signup"
+                            )}
                         </button>
                     </div>
                 </form>

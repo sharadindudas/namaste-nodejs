@@ -10,7 +10,6 @@ const Feed = () => {
     const feed = useSelector((store) => store.feed);
 
     const getFeed = async () => {
-        if (feed) return;
         try {
             const response = await axiosInstance.get("/user/feed");
             if (response.data.success) {
@@ -26,6 +25,8 @@ const Feed = () => {
     useEffect(() => {
         getFeed();
     }, []);
+
+    if (!feed || feed?.length === 0) return <h2 className="text-center my-10 font-bold text-3xl">No New Users Found!</h2>;
 
     return (
         <div className="container mx-auto flex flex-wrap items-center justify-center gap-10 my-10">

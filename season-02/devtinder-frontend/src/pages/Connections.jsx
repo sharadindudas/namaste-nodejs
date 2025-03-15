@@ -10,7 +10,6 @@ const Connections = () => {
     const connections = useSelector((store) => store.connections);
 
     const fetchAllConnections = async () => {
-        if (connections) return;
         try {
             const response = await axiosInstance.get("/user/connections");
             if (response.data.success) {
@@ -31,7 +30,7 @@ const Connections = () => {
 
     return (
         <div className="text-center my-8 max-w-3xl w-full mx-auto">
-            <h2 className="text-3xl font-bold">My Connections</h2>
+            <h2 className="text-3xl font-bold">My Connections ({connections?.length})</h2>
             <div className="space-y-6 mt-8">
                 {connections?.map((connection) => (
                     <ConnectionCard

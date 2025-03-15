@@ -10,6 +10,7 @@ import { AxiosError } from "axios";
 import { axiosInstance } from "../utils/axiosInstance";
 import { useDispatch } from "react-redux";
 import { addUser } from "../store/slices/userSlice";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const Login = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -93,21 +94,14 @@ const Login = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between mb-6">
-                        <label className="fieldset-label">
-                            <input
-                                type="checkbox"
-                                className="checkbox rounded-sm w-5 h-5"
-                                defaultChecked
-                            />
-                            Remember me
-                        </label>
-                        <Link
-                            to="/forgot-password"
-                            className="text-sm">
-                            Forgot Password?
-                        </Link>
-                    </div>
+                    <label className="fieldset-label mb-6">
+                        <input
+                            type="checkbox"
+                            className="checkbox rounded-sm w-5 h-5"
+                            defaultChecked
+                        />
+                        Remember me
+                    </label>
 
                     <div className="flex items-center flex-col gap-3">
                         <p className="m-auto cursor-pointer font-light">
@@ -122,7 +116,14 @@ const Login = () => {
                             type="submit"
                             disabled={!isValid || isSubmitting}
                             className=" btn btn-primary w-full h-11">
-                            Login
+                            {isSubmitting ? (
+                                <div className="flex items-center gap-2">
+                                    <AiOutlineLoading3Quarters className="animate animate-spin text-lg" />
+                                    Processing...
+                                </div>
+                            ) : (
+                                "Login"
+                            )}
                         </button>
                     </div>
                 </form>

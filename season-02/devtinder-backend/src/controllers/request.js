@@ -48,7 +48,7 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
     // Return the response
     res.status(201).json({
         success: true,
-        message: `Connection request ${status === "interested" ? "sent" : status} successfully`,
+        message: `Request ${status === "interested" ? "sent" : status} successfully`,
         data: populatedNewConnectionRequest
     });
 });
@@ -84,7 +84,7 @@ const reviewConnectionRequest = AsyncHandler(async (req, res, next) => {
     // Return the response
     res.status(200).json({
         success: true,
-        message: `Connection request ${status} successfully`,
+        message: `Request ${status} successfully`,
         data: connectionRequestExists
     });
 });
