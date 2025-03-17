@@ -1,10 +1,11 @@
+import { useEffect, useState } from "react";
 import { Outlet } from "react-router";
+import { Toaster } from "react-hot-toast";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
-import { axiosInstance } from "../utils/axiosInstance";
+import { useDispatch } from "react-redux";
 import { AxiosError } from "axios";
+import { axiosInstance } from "../utils/axiosInstance";
 import { addUser } from "../store/slices/userSlice";
 import Loader from "./Loader";
 
@@ -41,6 +42,7 @@ const Body = () => {
             <Navbar />
             <Outlet />
             <Footer />
+            <Toaster />
         </>
     );
 };
