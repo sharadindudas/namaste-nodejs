@@ -6,11 +6,11 @@
 -   Allowed the backend PORT in our EC2 instance to connect to our backend.
 -   When we close the npm start process or just close the terminal our backend stops so to keep our backend running all the time even after closing the terminal and all we need pm2 (process manager) who will run our backend all the time.
 -   `npm i pm2 -g` to install the pm2 globally for all the projects.
+-   `pm2 start npm -- start` to start, `pm2 stop <processName>` to stop, `pm2 delete <processName>` to delete the process.
+-   `pm2 start npm --name "<processName>" -- start` to provide custom name to the process.
 -   `pm2 logs` to see all our errors and status of our process.
 -   `pm2 flush <processName>` to clear the logs for the process.
 -   `pm2 list` to see all processes.
--   `pm2 start npm -- start` to start, `pm2 stop <processName>` to stop, `pm2 delete <processName>` to delete the process.
--   `pm2 start npm --name "<processName>" -- start` to provide custom name to the process.
 -   Find the config of nginx - `/etc/nginx/sites-available/default` and here edit the default using nano default and add the following configuration
 
 ```
@@ -23,10 +23,6 @@ location /api/ {
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
         proxy_cache_bypass $http_upgrade;
-    }
-
-location / {
-        try_files $uri /index.html;
     }
 
 ```
